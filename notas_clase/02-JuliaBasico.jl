@@ -634,6 +634,8 @@ for i = 0:5
     print(i, "_")
 end
 
+i
+
 # Noten que `i` sólo existe *dentro* del bloque `for`, al igual que `m` sólo
 # existe en el ciclo `while`. La propiedad que describe esto, que una variable sólo
 # existe en cierta parte del código, se llama "alcance" (*scope*). Las variables
@@ -784,6 +786,8 @@ function cribaEratostenes(N::Int)
 
 	return numeros_primos
 end
+
+cribaEratostenes(20)
 
 # Por último, Julia admite la forma ternaria de un condicional:
 # ```julia
