@@ -640,7 +640,8 @@ Pkg.status()
 # librerías estándar no se necesitan instalar, pero es útil "anunciarlas" para
 # que aparezcan en los archivos "Project.toml" y "Manifest.toml".
 
-#Esto instala paqueterías, y para las estándar, las incluye en "Project.toml"
+# `using` instala paqueterías; en el caso de las paqueterías estándar, las
+# incluye en "Project.toml"
 Pkg.add("LinearAlgebra")
 
 #Esto activa la paquetería
@@ -664,21 +665,25 @@ Pkg.add("Plots")
 #Cargamos la paquetería
 using Plots
 
-
+#Usamos `begin` ... `end` para ejecutar varias instrucciones al mismo tiempo
 begin
-    # "Crea" la gráfica y pinta x vs sin(x)
+    #"Crea" la gráfica y pinta x vs sin(x)
 	plot(0.0:0.125:2π, x->sin(x), label="sin(x)", lw=2)
-    # "Modifica" la gráfica anterior, pintando x vs cos(x)
+    #"Modifica" la gráfica anterior, pintando x vs cos(x)
   	plot!(0.0:0.125:2π, cos, label="cos(x)", lw=4)
 	xlabel!("x")
 	ylabel!("y=f(x)")
 end
 
-# Ahora graficamos algunos datos al azar
+# Ahora graficamos algunos datos al azar...
+begin
+	x = 2 .* rand(10_000) .- 1
+	y = 2 .* rand(10_000) .- 1;
+end
 
 #Gráfica algo burda
 scatter(x, y, xaxis=("x"), yaxis=("y"),
-    color=decide_color.(x, y), 	aspect_ratio=:equal, legend=:none)
+    color=decide_color.(x, y), aspect_ratio=:equal, legend=:none)
 
 #Ajusatmos más detalles
 scatter(x, y, color=decide_color.(x, y),
