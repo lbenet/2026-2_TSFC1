@@ -28,12 +28,12 @@
 # b. Elijan al azar uno de los vértices $X_1$, $X_2$ y $X_3$, que llamaré
 # $A_0$.
 #
-# c. Obtengan el punto medio de $Y_0$ y la $A_0$ que se consideró; el
+# c. Obtengan el punto medio de $Y_0$ y $A_0$; el
 # resultado lo etiquetaremos $Y_1$. Guarden el valor de $Y_1$.
 #
-# d. Repitan el algoritmo (pasos b y c), paso b para definir $A_r$ y c para
+# d. Repitan el algoritmo (pasos b y c), paso b para obtener $A_r$, y c para
 # obtener $Y_{r+1}$ usando como el punto medio de $A_r$ y
-# $Y_{r}$ (el obtenido antes), guardando los iterados.
+# $Y_{r}$ (obtenido antes), guardando los iterados.
 #
 # e. Grafiquen todos los iterados $Y_n$ que guardaron, considerando
 # muuuuchos puntos.
