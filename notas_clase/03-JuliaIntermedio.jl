@@ -681,6 +681,19 @@ begin
 	y = 2 .* rand(10_000) .- 1;
 end
 
+#Definimos una función que define el color (rojo o azul) según la
+#distancia al origen
+function decide_color(x, y)
+    r2 = x^2+y^2
+    # Esta es una alternativa de lo mismo:
+    # r2 = hypot(x, y) # saca la raíz cuadrada
+    if r2 < 1
+        return :blue
+    else
+        return :red
+    end
+end
+
 #Gráfica algo burda
 scatter(x, y, xaxis=("x"), yaxis=("y"),
     color=decide_color.(x, y), aspect_ratio=:equal, legend=:none)
