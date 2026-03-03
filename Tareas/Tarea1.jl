@@ -1,14 +1,14 @@
-# # Tarea 1
-
-# Tarea 1
+# Tarea 1 
 
 # ## 1. Triángulo de Pascal
+using Pkg
+Pkg.add("Plots")
 #
 # a. Generen el triángulo de Pascal, hasta cierto orden `ord`, usando una
 # matriz de enteros, en la que cada renglón representa un orden distinto.
 # Hagan que la apariencia de este vector sea lo más simétrico posible.
 #
-# b. Usen la matriz creada para generar *otra*, en que todos los números
+# b. Usen la matriz creada para generar *otra*, en que todo>s los números
 # pares aparezcan como `false` y los impares como `true`, o alternativamente
 # como 0 y 1, respectivamente. Las funciones `isodd` o `iseven` pueden
 # serles útiles.
@@ -21,10 +21,10 @@
 #
 # Sean $X_1$, $X_2$ y $X_3$ los vértices de un triángulo equilátero en el
 # plano. Implementen el siguiente algoritmo.
-#
+##
 # a. Elijan al azar un punto dentro del triángulo equilátero, que llamaré $Y_0$.
 # Es la condición inicial.
-#
+
 # b. Elijan al azar uno de los vértices $X_1$, $X_2$ y $X_3$, que llamaré
 # $A_0$.
 #
@@ -38,9 +38,107 @@
 # e. Grafiquen todos los iterados $Y_n$ que guardaron, considerando
 # muuuuchos puntos.
 
+using Plots 
+
+
+#Para simplificar las cosas, fijaré dos de los puntos al eje X con v[1]<u[1]
+function dis(p,q)        #Función distancia entre puntos 
+    return sqrt((p[1]-q[1])^2 + (p[2]-q[2])^2)
+end 
+
+function G(x,y,z)       #Función baricentro del triángulo
+    return [(x[1]+y[1]+z[1])/3,(x[2]+y[2]+z[2])/3]
+end
+
+function L(p,x,y,z)     #Función del Teo de Leibniz
+    g = G(x,y,z)
+    return dis(p,x)^2 + dis(p,y)^2 + dis(p,z)^2 - 3*(dis(p,g))^2
+end
+
+function random(x,y)     #Función para encontrar la componente en x del punto dentro del triángulo
+    return x[1] + rand()*(y[1] - x[1])
+end
+
+function S(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángulo, n es el 
+                      #numero de iteraciones que se quieren
+    Y = []
+    Y1 = [random(x,y),rand()*z[2]]
+    while L(Y1,x,y,z) != dis(x,y)^2 
+        Y1 = [random(x,y),rand()*z[2]]    
+    end
+    m=1
+    while m < n+1
+        A = rand([x,y,z]) 
+        Y1 = [(A[1]+Y1[1])/2,(A[2]+Y1[2])/2]
+        push!(Y,Y1)
+        m = m+1
+    end
+    return Y
+end 
+
+v = [0,0]
+u = [2,0]
+w = [1,sqrt(3)]
+n = 100000
+
+Y = S(v,u,w,n)
+x = [k[1] for k in Y]
+y = [k[2] for k in Y]
+scatter(x, y, markersize=1, color = :blue)
+
+
 
 # ## 3. Proporción distinta
 #
 # Repitan el ejercicio anterior usando ahora, no el punto medio, sino 1/3
 # de la distancia entre el vértice elegido al azar y el iterado $Y_n$.
 #
+using Plots 
+
+
+#Para simplificar las cosas, fijaré dos de los puntos al eje X con v[1]<u[1]
+function dis(p,q)        #Función distancia entre puntos 
+    return sqrt((p[1]-q[1])^2 + (p[2]-q[2])^2)
+end 
+
+function G(x,y,z)       #Función baricentro del triángulo
+    return [(x[1]+y[1]+z[1])/3,(x[2]+y[2]+z[2])/3]
+end
+
+function L(p,x,y,z)     #Función del Teo de Leibniz
+    g = G(x,y,z)
+    return dis(p,x)^2 + dis(p,y)^2 + dis(p,z)^2 - 3*(dis(p,g))^2
+end
+
+function random(x,y)     #Función para encontrar la componente en x del punto dentro del triángulo
+    return x[1] + rand()*(y[1] - x[1])
+end
+
+function S(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángulo, n es el 
+                      #numero de iteraciones que se quieren
+    Y = []
+    Y1 = [random(x,y),rand()*z[2]]
+    while L(Y1,x,y,z) != dis(x,y)^2 
+        Y1 = [random(x,y),rand()*z[2]]    
+    end
+    m=1
+    while m < n+1
+        A = rand([x,y,z]) 
+        Y1 = [(2*A[1]+Y1[1])/3,(2*A[2]+Y1[2])/3]  #La única modificación respecto al otro código está aquí
+        push!(Y,Y1)
+        m = m+1
+    end
+    return Y
+end 
+
+v = [0,0]
+u = [2,0]
+w = [1,sqrt(3)]
+n = 100000
+
+Y = S(v,u,w,n)
+x = [k[1] for k in Y]
+y = [k[2] for k in Y]
+scatter(x, y, markersize=1, color = :blue)
+
+
