@@ -40,9 +40,7 @@
 
 # ## Ejercicio 3
 #
-# - A partir de lo visto en clase, *extiendan* las funciones elementales usuales para que funcionen con Duales, es decir, `sin(a::Dual)`,
-# `cos(a::Dual)`, `tan(a::Dual)`, `^(a::Dual, n::Int)`, `sqrt(a::Dual)`, `exp(a::Dual)`
-# y `log(a::Dual)`.
+# - A partir de lo visto en clase, *extiendan* las funciones elementales usuales para que funcionen con Duales, es decir, `sin(a::Dual)`, `cos(a::Dual)`, `tan(a::Dual)`, `^(a::Dual, n::Int)`, `sqrt(a::Dual)`, `exp(a::Dual)` y `log(a::Dual)`.
 #
 # - Al igual que antes, construyan algún conjunto de pruebas que muestre, de manera
 # sencilla, que lo que hicieron da lo que uno esperaría obtener.
