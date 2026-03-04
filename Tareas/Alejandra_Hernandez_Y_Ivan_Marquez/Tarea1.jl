@@ -8,14 +8,54 @@ Pkg.add("Plots")
 # matriz de enteros, en la que cada renglón representa un orden distinto.
 # Hagan que la apariencia de este vector sea lo más simétrico posible.
 #
+
+"""
+    function trianguloPascal(ord:Int)
+
+Genera una matriz del triángulo de Pascal, hasta un orden dado
+"""
+#function trianguloPascal(ord::Int)
+    ord = 4
+    triangulo = zeros(Int,ord,ord)
+    #for i = ord
+    #   triangulo[i]
+    
+
+    #return triangulo
+#end
+
 # b. Usen la matriz creada para generar *otra*, en que todo>s los números
 # pares aparezcan como `false` y los impares como `true`, o alternativamente
 # como 0 y 1, respectivamente. Las funciones `isodd` o `iseven` pueden
 # serles útiles.
+"""
+    function imparYPar(mat::Matrix)
+Toma una matriz y regresa otra, reemplazando los números impares con 1 y los pares con 0
+"""
+function imparYPar(mat::Matrix)
+    A = copy(mat) #Creamos una copia de matriz original, que modificaremos
+    for i = 1:length(A)
+        A[i] = isodd(A[i])
+    end # Para cada entrada en la matriz reemplazamos los impares con 1 y los pares con 0
+    return A # La función regresa la matriz modificada
+end
 #
 # c. Dibujen (con puntos) todos los valores impares del triángulo de Pascal
 # para `ord=256`. Repitan el ejercicio para `ord=1024`.
-
+function dibujarMatriz(mat::Matrix)
+    x = Vector{Int}(undef,0)
+    y = Vector{Int}(undef,0)
+    tamano = size(matPrueba2)
+    mat = copy(matPrueba2)
+    for i = 1:tamano[1]
+        for j = 1:tamano[2]
+            if mat[i,j] == 1
+                push!(x,i)
+                push!(y,j)
+            end
+        end
+    end
+end
 
 # ## 2. Triángulo equilátero
 #
