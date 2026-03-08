@@ -7,7 +7,43 @@
 # a. Generen el triángulo de Pascal, hasta cierto orden `ord`, usando una
 # matriz de enteros, en la que cada renglón representa un orden distinto.
 # Hagan que la apariencia de este vector sea lo más simétrico posible.
-#
+
+#Para poner el orden del triangulo:
+"""
+Función para imprimir el triangulo de pascal de orden ord a partir de una matriz de 
+enteros cuadrada de longitud ord, en la que cada renglón representa un orden distinto. 
+Al principio es una matriz de ceros y poco a poco se va llenando cada renglón hasta formar 
+una matriz diagonal que será nuestro triángulo de Pascal.  
+"""
+
+function triangulo_pascal(ord)
+    
+    # matriz de enteros
+    A = zeros(Int, ord, ord)
+
+    for i in 1:ord
+        A[i,1] = 1
+        A[i,i] = 1
+
+        for j in 2:i-1
+            A[i,j] = A[i-1,j-1] + A[i-1,j]
+        end
+    end
+
+    # impresión simétrica
+    for i in 1:ord
+        espacios = " "^(ord - i)
+        fila = join(A[i,1:i], " ")
+        println(espacios * fila)
+    end
+
+    return A
+end
+
+triangulo_pascal(20)
+
+
+
 # b. Usen la matriz creada para generar *otra*, en que todos los números
 # pares aparezcan como `false` y los impares como `true`, o alternativamente
 # como 0 y 1, respectivamente. Las funciones `isodd` o `iseven` pueden
@@ -24,7 +60,6 @@
 #
 # a. Elijan al azar un punto dentro del triángulo equilátero, que llamaré $Y_0$.
 # Es la condición inicial.
-#
 # b. Elijan al azar uno de los vértices $X_1$, $X_2$ y $X_3$, que llamaré
 # $A_0$.
 #
