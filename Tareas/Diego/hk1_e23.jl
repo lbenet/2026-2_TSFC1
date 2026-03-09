@@ -27,7 +27,7 @@ end
 Devuelve la distancia euclidea entre dos 'puntos'(2-tupla)
 """
 function distP2P(a::NTuple{2,Float64}, b::NTuple{2,Float64})
-    r_cuadrado=(a[1]+b[1])*(a[1]+b[1])+(a[2]+b[2])*(a[2]+b[2])
+    r_cuadrado=(a[1]-b[1])*(a[1]-b[1])+(a[2]-b[2])*(a[2]-b[2])
     return sqrt(r_cuadrado)
 end
 
@@ -45,19 +45,32 @@ function LsidesT(t::Triangle)
     return s1,s2,s3
 end
 
-#Dos objetos Triangle de ejemplo y para uso posterior
+#Objetos Triangle de ejemplo y para uso posterior
 t1=Triangle((1.2,5),(-2.6,0.9),(0.0,7.0))
 
 pitag=Triangle((0,0),(0,4),(3,0))
+
+
+"""
+Devuelve un triangulo equilátero, cuyos lados miden L.
+
+Este tríangulo tendrá un vértice en el origen y estará complétamente contenido en el primer cuadrante (x,y>=0) del plano
+"""
+function equi(L::Float64)
+    v1=(0,0)
+    v2=(L,0)
+    h=sqrt(3)*L/2
+    v3=(L/2,h)
+    return Triangle(v1,v2,v3)
 
 """
 Método para Triangle. Lo dibuja en un objeto 'Plot',
 lo despliega y devuelve para manipulación extra.
 """
 function drawT(tri::Triangle)
-    p=scatter(tri.a, mc=:black,ms=2)
-    scatter!(tri.b, mc=:black,ms=2)
-    scatter!(tri.c, mc=:black,ms=2)
+    p=scatter(tri.a, mc=:black,ms=1)
+    scatter!(tri.b, mc=:black,ms=1)
+    scatter!(tri.c, mc=:black,ms=1)
     x=range(0,1,length=100)
     l1(t)=@. tri.a+(tri.b-tri.a)*t
     l2(t)=@. tri.a+(tri.c-tri.a)*t
@@ -71,10 +84,6 @@ function drawT(tri::Triangle)
     display(p)
     return p
 end
-
-
-#P1=(2,3)
-#P2=(5,9)
 
 """
     punto_medio(p1,p2)
@@ -106,11 +115,6 @@ function punto_frac(p1,p2,q=1/2)
     return p3
 end
 
-
-#plot1=drawT(pitag)
-#scatter!(punto_frac((0,0),(3,0)),mc=:red,ms=4)
-
-
 #Inicia la caminata aleatoria del problema 2
 #v1=vertices(pitag)
 """
@@ -141,7 +145,7 @@ function step3(T::Triangle, x=(1,1))
     v=vertices(T)
     #drawT(T)
     #scatter!(x_0, mc=:red, ms=5)
-    return punto_frac(x, rand(v),1/3)
+    return punto_frac(x, rand(v),2/3)
 end
 
 #Nota: usar push!() para añadir un elemento, append!() para varios.
@@ -156,7 +160,7 @@ caminata aleatoria de n pasos en el plano:
 
 Comienza en x_0 un punto dentro de t (a priori random), 
 x_{n} será el punto medio entre x_{n-1} y un vértice
-aleatorio de T
+aleatorio de T.
 """
 function caminataP2(T::Triangle, n, x_0=(1.0,1.0))
     X::Array{NTuple{2,Float64},1}=[x_0]
@@ -177,7 +181,7 @@ caminata aleatoria de n pasos en el plano:
 
 Comienza en x_0 un punto dentro de t (a priori random), 
 x_{n} será el punto_frac(q=1/3) entre x_{n-1} y un vértice
-aleatorio de T
+aleatorio de T.
 """
 function caminataP3(T::Triangle, n, x_0=(1.0,1.0))
     X::Array{NTuple{2,Float64},1}=[x_0]
@@ -188,16 +192,18 @@ function caminataP3(T::Triangle, n, x_0=(1.0,1.0))
     return X
 end
 
+equilatero=equi(3)
 
-cosa=caminataP2(pitag,10000)
+begin
+cosa=caminataP2(equilatero,10000)
 p1=drawT(pitag)
 p1=scatter!(cosa, mc=:red, ms=2, title="punto medio=sierpinski")
 
 
-
-
-cosa2=caminataP3(pitag,10000)
+cosa2=caminataP3(equilatero,10000)
 p2=drawT(pitag)
 p2=scatter!(cosa2, mc=:red, ms=2, title="punto_tercio=caos")
 
 plot(p1,p2, layout=(1,2),legend=false)
+
+end
