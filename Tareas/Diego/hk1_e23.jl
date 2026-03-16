@@ -62,6 +62,7 @@ function equi(L::Float64)
     h=sqrt(3)*L/2
     v3=(L/2,h)
     return Triangle(v1,v2,v3)
+end
 
 """
 Método para Triangle. Lo dibuja en un objeto 'Plot',
@@ -192,18 +193,15 @@ function caminataP3(T::Triangle, n, x_0=(1.0,1.0))
     return X
 end
 
-equilatero=equi(3)
+equilatero=equi(3.0)
 
-begin
 cosa=caminataP2(equilatero,10000)
-p1=drawT(pitag)
+p1=drawT(equilatero)
 p1=scatter!(cosa, mc=:red, ms=2, title="punto medio=sierpinski")
 
 
 cosa2=caminataP3(equilatero,10000)
-p2=drawT(pitag)
+p2=drawT(equilatero)
 p2=scatter!(cosa2, mc=:red, ms=2, title="punto_tercio=caos")
 
-plot(p1,p2, layout=(1,2),legend=false)
-
-end
+#plot(p1,p2, layout=(1,2),legend=false)
