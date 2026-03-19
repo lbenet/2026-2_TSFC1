@@ -15,5 +15,6 @@ código esté adecuadamente documentado, ya sea con *docstrings* o al menos con 
 
 |                     | Aceptación del PR    | Estado                   |
 | :------------------ | :------------------: | :----------------------: |
-| Tarea 1             | 03/03/2026           | Se aceptan PRs           |
+| Tarea 1             | 08/03/2026           | Se aceptan PRs           |
+| Tarea 2             | 17/03/2026           | Se aceptan PRs           |
 | | | |
