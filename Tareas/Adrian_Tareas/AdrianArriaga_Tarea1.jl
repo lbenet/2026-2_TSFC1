@@ -47,7 +47,7 @@ function dot_drawing(order)
     # broadcasting (isodd.) para convertir todos los números impares en 1 y los pares en 0 de forma simultánea.
 
     P = pascal_triangle(order)
-    P = Int.(isodd.(P)) # Evaluamos si cada elemento de P es impar y lo convertimos a entero (1 o 0)
+    P = isodd.(P) # Evaluamos si cada elemento de P es impar y lo convertimos a entero (1 o 0)
     M_row = size(P, 1)
     M_col = size(P, 2)
     x_dot = Vector{Int64}()
@@ -76,9 +76,8 @@ function dot_drawing(order)
 end
 
 TrianguloPascal = pascal_triangle(8)
-TriangPascalBinario = binary_pascal(TrianguloPascal)
 # Se usa broadcasting (isodd.) para convertir todos los números impares en 1 y los pares en 0 de forma simultánea
-T2 = Int.(isodd.(TrianguloPascal)) 
+TriangPascalBinario = isodd.(TrianguloPascal)
 PuntosOrden256 = dot_drawing(256)
 PuntosOrden10 = dot_drawing(1024)
 
