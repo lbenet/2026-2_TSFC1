@@ -111,9 +111,9 @@ begin
         yData = Float64[]
         p = genVec()
         A = getAxis()
-        mp = [Float64[],Float64[]]
+        mp = Array{Float64}(undef,2)
         for i in 1:n
-            mp = midpoint(p,A)
+            mp .= midpoint(p,A)
             push!(xData, mp[1])
             push!(yData, mp[2])
             p = [xData[i], yData[i]]
@@ -168,7 +168,7 @@ begin
         elseif type == 2
             return p .+ (A .- p) ./ 3
         elseif type == 3
-            randNum = ceil(2*rand())
+            randNum = rand(1:2)
             return A .+ (randNum/3) .* (p .- A)
         end
     end
@@ -184,9 +184,9 @@ begin
         yData = []
         p = genVec()
         A = getAxis()
-        mp = [Float64[], Float64[]]
+        mp = Array{Float64}(undef,2)
         for i in 1:n
-            mp = oneThirdPoint(p,A,type)
+            mp .= oneThirdPoint(p,A,type)
             push!(xData, mp[1])
             push!(yData, mp[2])
             p = [xData[i], yData[i]]
