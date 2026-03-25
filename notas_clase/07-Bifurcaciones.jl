@@ -66,9 +66,9 @@ end
 # caso concreto, es una *bifurcación de silla-nodo* (saddle-node) o
 # *bifurcación tangente*.
 
-begin
-	Qc(x,c) = x^2 - c       # Mapeo cuadrático
+Qc(x,c) = x^2 - c       # Mapeo cuadrático
 
+begin
 	qc1 = x -> Qc(x, -0.5)   # Mapeo cuadrático con c = -0.5
 	qc2 = x -> Qc(x, -0.25)  # Mapeo cuadrático con c = -0.25
 	qc3 = x -> Qc(x, 0.5)  # Mapeo cuadrático con c =  0.25
@@ -128,8 +128,8 @@ begin
 
 	plot(domc, xplus, xaxis=("c", (-1/2,2)), yaxis=("x_±(c)"),
 	    label="x₊(c)", color=:red, linewidth=2)
-	plot!(-1/4:1/64:1/4, xminus, label="x₋(c) estable", color=:blue, linewidth=2)
-	plot!(1/4:1/64:2, xminus, label="x₋(c) inestble", color=:red, line=(:dash), linewidth=2)
+	plot!(-1/4:1/64:3/4, xminus, label="x₋(c) estable", color=:blue, linewidth=2)
+	plot!(3/4:1/64:2, xminus, label="x₋(c) inestble", color=:red, line=(:dash),     linewidth=2)
 	title!("Fig. 2")
 end
 
@@ -150,7 +150,8 @@ end
 # *abierto* $I$ y un $\epsilon>0$ tal que:
 
 # - Para $\lambda_0-\epsilon<\lambda<\lambda_0$ no hay puntos fijos de $F_\lambda$ en $I$.
-# - Para $\lambda=\lambda_0$ existe un sólo punto fijo de $F_\lambda$ en $I$ y éste es neutral (o degenerado), es decir, su derivada es 1.
+# - Para $\lambda=\lambda_0$ existe un sólo punto fijo de $F_\lambda$ (de
+# multiplicidad 2) en $I$ y éste es neutral (o degenerado), es decir, su derivada es 1.
 # - Para $\lambda_0<\lambda<\lambda_0+\epsilon$ tenemos dos puntos fijos de $F_\lambda$, uno es repulsivo y el otro es atractivo.
 
 # Hay dos puntos importantes que vale la pena enfatizar.
@@ -334,7 +335,7 @@ end
 # más fácil. Es importante notar que este punto tiene una peculiaridad
 # importante: $Q_c'(0)=0$ y $Q_c''(0) \neq 0$. Esto es, si $x_0=0$ pertenece a
 # una órbita periódica para algún valor de $c$, entonces la órbita será
-# *superestable*, aunque esto no es eidente del análisis lineal de la
+# *superestable*, aunque esto no es evidente del análisis lineal de la
 # estabilidad. Más adelante aclararemos la superestabilidad a la que nos
 # referimos.
 
