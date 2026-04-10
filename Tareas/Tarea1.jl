@@ -41,16 +41,13 @@ En el contexto de este problema nos ayudará a ver el triángulo de pascal.
 function imprimir_diagonal_triangulo(A::Matrix{Int})
 
     ord = size(A)[1]
-    if size(A)[1] != size(A)[2]
-        return "Debe ser una matriz cuadrada"
+    @assert size(A)[1] == size(A)[2] "Debe ser una matriz cuadrada"
     
     #Impresión simétrica
-    else
-        for i in 1:ord
-            espacios = " "^(ord - i)
-            fila = join(A[i,1:i], " ")
-            println(espacios * fila)
-        end
+    for i in 1:ord
+        espacios = " "^(ord - i)
+        fila = join(A[i,1:i], " ")
+        println(espacios * fila)
     end
 end
 
