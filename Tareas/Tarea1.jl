@@ -2,6 +2,10 @@
 
 # Tarea 1
 
+using Pkg
+Pkg.add("Plots") #Añadimos la paquetería Plots para poder dibujar
+using Plots #cargamos la paquetería Plots
+
 # ## 1. Triángulo de Pascal
 #
 # a. Generen el triángulo de Pascal, hasta cierto orden `ord`, usando una
@@ -92,10 +96,6 @@ par_impar_matriz(A)
 
 
 
-using Pkg
-Pkg.add("Plots") #Primero importamos la paquetería Plots para poder dibujar
-using Plots #cargamos la paquetería Plots
-
 #= Función que toma como argumento el orden del triángulo de Pascal (ord) para dibujar
 con puntos los impares del triángulo, para eso primero creamos la matriz de booleanos utilizando 
 las 2 funciones anteriores (mat = par_impar_matriz(triangulo_pascal(ord))) y definimos nuestros 
@@ -133,6 +133,7 @@ end
 plot_pascal_impares(256)
 
 plot_pascal_impares(1024)
+
 # ## 2. Triángulo equilátero
 #
 # Sean $X_1$, $X_2$ y $X_3$ los vértices de un triángulo equilátero en el
@@ -166,7 +167,7 @@ begin
         y1 = rand()
     end
 end
-Y_0 = [r1, r2]
+Y_0 = [x1, y1]
 
 # b. Elijan al azar uno de los vértices $X_1$, $X_2$ y $X_3$, que llamaré
 # $A_0$.
@@ -196,7 +197,7 @@ begin
 end
 
 
-for i in 2:2000
+for i in 2:100000
     push!(A, rand([X_1, X_2, X_3 ])) # Paso b, Guardamos A_{i-1}
     push!(Y, (Y[i] + A[i])/2) # Paso c. Guardamos Y_i
     push!(Yx, Y[i+1][1]) # Guardamos la coordenada x de Y_i
@@ -206,14 +207,10 @@ end
 # e. Grafiquen todos los iterados $Y_n$ que guardaron, considerando
 # muuuuchos puntos.
 
-#=
-para graficarlos pasaré las cordenadas en
-=#
-
-begin
-    scatter(Yx,Yy, ms = 1.0, msw = 0.1, color = :black, legend=:none)
-    scatter!(xlims = (0, 5), ylims = (0, 1))
-end
+scatter(Yx,Yy, 
+    ms = 1.0, msw = 0.1, 
+    xlabel = "x", ylabel = "y",
+    color = :purple, legend=:none)
 
 
 # ## 3. Proporción distinta
@@ -221,3 +218,64 @@ end
 # Repitan el ejercicio anterior usando ahora, no el punto medio, sino 1/3
 # de la distancia entre el vértice elegido al azar y el iterado $Y_n$.
 #
+
+#=
+Ocuparemos X_1 = [0,0], X_2 = [1,0] y X_3 = [0.5,sqrt(3/4)], que son las coordenadas de un triángulo
+equilátero de lado 1. 
+=#
+begin
+    X_1 = [0.0, 0.0]
+    X_2 = [1.0, 0.0]
+    X_3 = [0.5, sqrt(3/4)]
+end
+
+#=
+Para hacer el inciso a de nuevo:
+Escogemos 2 flotantes entre 0 y 1, uno para la coordenada x y uno para la coordenada y, si
+el de la coordenada y se sale del triángulo lo redefinimos hasta que cumpla la condicion
+y1 < tan(π/3)*x1 (tan(π/3)=sqrt(3)), para que este dentro del tríangulo equilátero.
+=#
+
+begin
+    x1 = rand()
+    y1 = rand()
+    while y1 >= sqrt(3)*x1
+        y1 = rand()
+    end
+end
+Y_0 = [x1, y1]
+
+#Eligo al azar uno de los vertices y le llamo A_0, para hacer el inciso b.
+A_0 = rand([X_1, X_2, X_3 ])
+#Ahora, en vez de encontrar el punto medio, tomaremos el punto tercio.
+Y_1 = (Y_0 + A_0)/2
+
+#=
+Ahora, vamos a guardar todos los iterados A_r en un vector de vectores A y todas las Y_r en un vector de
+vectores Y:
+
+Primero guardamos lo que ya tenemos:
+=#
+begin
+    A = [A_0]
+    Y = [Y_0, Y_1]
+    Yx = [Y_0[1], Y_1[1]]
+    Yy = [Y_0[2], Y_1[2]]
+end
+
+
+for i in 2:100000
+    push!(A, rand([X_1, X_2, X_3 ])) # Paso b, Guardamos A_{i-1}
+    push!(Y, (Y[i] + A[i])/3) # Encontramos punto tercio. Guardamos Y_i
+    push!(Yx, Y[i+1][1]) # Guardamos la coordenada x de Y_i
+    push!(Yy, Y[i+1][2]) # Guardamos la coordenada y de Y_i
+end
+
+# e. Grafiquen todos los iterados $Y_n$ que guardaron, considerando
+# muuuuchos puntos.
+
+using Pkg
+using Plots #cargamos la paquetería Plots
+
+scatter(Yx,Yy, ms = 1.0, msw = 0.1, color = :blue, legend=:none)
+
