@@ -111,7 +111,7 @@ begin
         yData = Float64[]
         p = genVec()
         A = getAxis()
-        mp = Array{Float64}(undef, 2)
+        mp = Array{Float64}(undef,2)
         for i in 1:n
             mp .= midpoint(p,A)
             push!(xData, mp[1])
