@@ -84,24 +84,18 @@ end
 # que lo que
 # implementaron da el resultado que debería ser. Para esto, pueden usar la librería
 # estándard [`Test`](https://docs.julialang.org/en/v1/stdlib/Test/) de Julia.
-
+import Pkg;
+Pkg.add("Symbolics")
 using Symbolics
-begin
-    # NOTE Esta parte de codigo solo es simbolico para no realizar la simplificacion a mano
-    @variables x
-    a = (3(2+x)^2 - 8(2+x) + 5) + (7(2+x)^3 - 1);
-    b = (3(2+x)^2 - 8(2+x) + 5) - (7(2+x)^3 - 1);
-    c = (7(2+x)^3 - 1) - (3(2+x)^2 - 8(2+x) + 5);
-    d = (3(2+x)^2 - 8(2+x) + 5) * (7(2+x)^3 - 1);
-    e = (3(2+x)^2 - 8(2+x) + 5) / (7(2+x)^3 - 1);
-    g = (7(2+x)^3 - 1) / (3(2+x)^2 - 8(2+x) + 5);
-end
-simplify(expand(a))
-simplify(expand(b))
-simplify(expand(c))
-simplify(expand(d))
-simplify(expand(e))
-simplify(expand(g))
+
+# NOTE Esta parte de codigo solo es simbolico para no realizar la simplificacion a mano
+@variables x
+a = simplify(expand((3(2+x)^2 - 8(2+x) + 5) + (7(2+x)^3 - 1)));
+b = simplify(expand((3(2+x)^2 - 8(2+x) + 5) - (7(2+x)^3 - 1)));
+c = simplify(expand((7(2+x)^3 - 1) - (3(2+x)^2 - 8(2+x) + 5)));
+d = simplify(expand((3(2+x)^2 - 8(2+x) + 5) * (7(2+x)^3 - 1)));
+e = simplify(expand((3(2+x)^2 - 8(2+x) + 5) / (7(2+x)^3 - 1)));
+g = simplify(expand((7(2+x)^3 - 1) / (3(2+x)^2 - 8(2+x) + 5)));
 
 u = Dual(3*2^2 - 8*2 + 5, 6*2 - 8)
 w = Dual(7*2^3 - 1, 21*2^2)
@@ -149,7 +143,7 @@ end
 # - A partir de lo visto en clase, *extiendan* las funciones elementales usuales para que funcionen con Duales, es decir, `sin(a::Dual)`, `cos(a::Dual)`, `tan(a::Dual)`, `^(a::Dual, n::Int)`, `sqrt(a::Dual)`, `exp(a::Dual)` y `log(a::Dual)`.
 
 begin
-    import Base: sin, cos, tan, ^, sqrt, exp, log
+    import Base: sin, cos, tan, ^, sqrt, exp, log, ≈
 
     sin(u::Dual) = Dual(sin(u.fun), u.der*cos(u.fun))
     cos(u::Dual) = Dual(cos(u.fun), -u.der*sin(u.fun))
@@ -158,6 +152,7 @@ begin
     sqrt(u::Dual) = Dual(sqrt(u.fun), u.der/(2*sqrt(u.fun)))
     exp(u::Dual) = Dual(exp(u.fun), u.der*exp(u.fun))
     log(u::Dual) = Dual(log(u.fun), u.der/u.fun)
+    ≈(u::Dual, v::Dual) = u.fun ≈ v.fun && u.der ≈ v.der
 end
 
 # - Al igual que antes, construyan algún conjunto de pruebas que muestre, de manera
@@ -169,9 +164,9 @@ end
     # e.g.               sin(θ) = Dual{Float64}(0.7071067811865475, 0.7071067811865476)
     # Dual(1/sqrt(2),1/sqrt(2)) = Dual{Float64}(0.7071067811865475, 0.7071067811865475)
     # El uso de atol tampoco ayudo a mostrar que dan resultados efectivamente iguales.
-    @test sin(θ) ≈ Dual(1/sqrt(2),1/sqrt(2)) broken = true
-    @test cos(θ) ≈ Dual(1/sqrt(2),-1/sqrt(2)) broken = true
-    @test tan(θ) ≈ Dual(1,2) broken = true
+    @test sin(θ) ≈ Dual(1/sqrt(2),1/sqrt(2)) 
+    @test cos(θ) ≈ Dual(1/sqrt(2),-1/sqrt(2)) 
+    @test tan(θ) ≈ Dual(1,2) 
     @test u^3 ≈ Dual(1,12)
     @test sqrt(u) ≈ Dual(1, 2)
     @test exp(u) ≈ Dual(exp(1),4*exp(1))
