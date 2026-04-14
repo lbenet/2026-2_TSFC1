@@ -132,9 +132,9 @@
 # ### Exponente de Lyapunov del mapeo cuadrático
 
 # Ahora obtendremos la dependencia del exponente
-# de Lyapunov del parámetro $c$, para el mapeo cuadrático $Q_c(x) = x^2+c$.
-# Volveremos a generar aquí el diagrama de bifurcaciones, ya que ambos diagramas
-# permiten entender muchas cosas.
+# de Lyapunov del parámetro $c$, para el mapeo cuadrático $Q_c(x) = x^2-c$.
+# Volveremos a generar aquí el diagrama de bifurcaciones, ya que ambos
+# diagramas permiten entender muchas cosas.
 
 using Plots
 
@@ -270,7 +270,7 @@ n0 = findfirst(l -> l > 0.0, λv)
 
 (crange[n0], λv[n0]), (crange[n0-1], λv[n0-1])
 
-# Si bien el valor para `c_\infty` = $(crange[n0]) que obtuvimos es
+# Si bien el valor para $c_\infty =$ $(crange[n0]) que obtuvimos es
 # una aproximación numérica burda, el punto importante es que para
 # este valor de `c` hay órbitas que no muestran ninguna periodicidad.
 # Para este valor de `c` el mapeo tiene una dinámica caótica.
