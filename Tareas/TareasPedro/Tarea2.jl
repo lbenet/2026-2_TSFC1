@@ -64,27 +64,32 @@ begin
     Definimos la conversión a que cualquier número, pueda verse como $\mathbb{D}_{x_0}c = (c, 0)$
     =#
 
-    Base.convert(::Type{Dual}, cons::T) where {T<:Real} = Dual{T}(cons, zero(T))
+    Base.convert(::Type{Dual{T}}, cons::Real) where {T<:Real} = Dual{T}(T(cons), zero(T))
 
     #=
     Definimos la promoción: si tenemos un dual del tipo Dual{T} donde T<:Real y un número del tipo S<:Real
     Entonces va promover ya sea T o S al tipo S o T, para que sean del mismo tipo.   
     =#
 
-    Base.promote_rule(::Type{Dual{T}}, ::Type{S}) where {T<:Real, S<:Real} = Dual{promote_type(T,S)}
+    Base.promote_rule(::Type{Dual{T}}, ::Type{S}) where {T<:Real, S<:Real} = Dual{promote_type(T, S)}
 
     #Ahora definamos los métodos para sumar/restar y multiplicar/dividir un número (::Real) y un ::Dual.
     #Suma
-    Base.:+(u::T, w::Dual) where {T<:Real} = +(promote(u,w)...)
+    Base.:+(u::Real, w::Dual) = +(promote(u,w)...)
+    Base.:+(u::Dual, w::Real) = +(promote(u,w)...)
     #Resta
-    Base.:-(u::T, w::Dual) where {T<:Real} = -(promote(u,w)...)
+    Base.:-(u::Real, w::Dual) = -(promote(u,w)...)
+    Base.:-(u::Dual, w::Real) = -(promote(u,w)...)
     #Producto
-    Base.:*(u::T, w::Dual) where {T<:Real} = *(promote(u,w)...)
+    Base.:*(u::Real, w::Dual) = *(promote(u,w)...)
+    Base.:*(u::Dual, w::Real) = *(promote(u,w)...)
     #División
-    Base.:/(u::T, w::Dual) where {T<:Real} = /(promote(u,w)...)
-    
+    Base.:/(u::Real, w::Dual) = /(promote(u,w)...)
+    Base.:/(u::Dual, w::Real) = /(promote(u,w)...)
 end
 
+
+promote((Dual(2.5,2.3),3.4))
 
 #
 # e. Definan las funciones `fun` y `der` que, al ser aplicadas a un `Dual` devuelven
@@ -101,7 +106,7 @@ der(u::Dual) = u.der
 
 using Test
 
-@testset "Pruebas Dual" begin
+@testset begin
 
     #Punto de evaluación
     a = 2.0
@@ -130,7 +135,7 @@ using Test
 
     #5. Función compuesta (polinomio)
     #f(x) = x^3 + 2x
-    f = u^3 + 2u
+    f = u^3 + 2*u
     @test fun(f) ≈ a^3 + 2a
     @test der(f) ≈ 3a^2 + 2
 
@@ -202,3 +207,99 @@ der(gd) == g′(2)
 #
 # - Al igual que antes, construyan algún conjunto de pruebas que muestre, de manera
 # sencilla, que lo que hicieron da lo que uno esperaría obtener.
+
+import Base: exp, log, tan, sin, cos, sinh, cosh, tanh, sqrt
+begin
+
+    exp(u::Dual) = Dual(exp(u.fun), exp(u.fun)*u.der)
+
+    log(u::Dual) = Dual(log(u.fun), u.der/u.fun)
+
+    tan(u::Dual) = Dual(tan(u.fun), u.der * sec(u.fun)^2 )
+
+    sin(u::Dual) = Dual(sin(u.fun), cos(u.fun)*u.der)
+
+    cos(u::Dual) = Dual(cos(u.fun), -sin(u.fun)*u.der)
+
+    sinh(u::Dual) = Dual(sinh(u.fun), cosh(u.fun)*u.der)
+
+    cosh(u::Dual) = Dual(cosh(u.fun), sinh(u.fun)*u.der)
+
+    function tanh(u::Dual) #Lo puse así porque me pareció más cómodo que la sech
+        t = tanh(u.fun)
+        return Dual(t, (1 - t^2) * u.der)
+    end
+
+    sqrt(u::Dual) = Dual(sqrt(u.fun), u.der / (2 * sqrt(u.fun)))
+
+end
+
+#Hagamos el test:
+
+@testset "Funciones Elementales" begin
+    x0 = 9
+    d = dual(x0)
+    h(x) = x^2
+    h′(x) = 2*x
+    d2 = h(d)
+
+    # Test exp(x) -> derivada es exp(x)
+    @test fun(exp(d)) ≈ exp(x0)
+    @test der(exp(d)) ≈ exp(x0)
+
+    # Test log(x) -> derivada es 1/x
+    @test fun(log(d)) ≈ log(x0)
+    @test der(log(d)) ≈ 1/x0
+
+    # Test identidad sin^2 + cos^2 = 1 (derivada debe ser 0)
+    identidad = sin(d)^2 + cos(d)^2
+    @test fun(identidad) ≈ 1.0
+    @test abs(der(identidad)) ≈ 0
+
+    # Test sqrt(x)
+    @test der(sqrt(d)) ≈ 1/(2*sqrt(x0))
+
+    # Test identidad cosh^2 - sinh^2 = 1 (derivada debe ser 0)
+    iden = cosh(d)^2 - sinh(d)^2
+    @test fun(iden) ≈ 1.0
+    @test abs(der(iden)) ≈ 0
+
+    # Test para regla de la cadena con las funciones elementales
+    # Exponencial
+    @test fun(exp(d2)) ≈ exp(h(x0))
+    @test der(exp(d2)) ≈ exp(h(x0)) * h′(x0)
+
+    # Seno
+    @test fun(sin(d2)) ≈ sin(h(x0))
+    @test der(sin(d2)) ≈ cos(h(x0)) * h′(x0)
+
+    # Logaritmo
+    @test fun(log(d2)) ≈ log(h(x0))
+    @test der(log(d2)) ≈ (1 / h(x0)) * h′(x0)
+
+    # Coseno
+    @test fun(cos(d2)) ≈ cos(h(x0))
+    @test der(cos(d2)) ≈ -sin(h(x0)) * h′(x0)
+
+    # Tangente
+    @test fun(tan(d2)) ≈ tan(h(x0))
+    @test der(tan(d2)) ≈ (1 / cos(h(x0))^2) * h′(x0)
+
+    # Raíz Cuadrada
+    @test fun(sqrt(d2)) ≈ sqrt(h(x0))
+    @test der(sqrt(d2)) ≈ (1 / (2 * sqrt(h(x0)))) * h′(x0)
+
+    # Seno Hiperbólico
+    @test fun(sinh(d2)) ≈ sinh(h(x0))
+    @test der(sinh(d2)) ≈ cosh(h(x0)) * h′(x0)
+
+    # Coseno Hiperbólico
+    @test fun(cosh(d2)) ≈ cosh(h(x0))
+    @test der(cosh(d2)) ≈ sinh(h(x0)) * h′(x0)
+
+    # Tangente Hiperbólica
+    @test fun(tanh(d2)) ≈ tanh(h(x0))
+    #Derivada de tanh(u) es sech^2(u) * u', que es (1 - tanh^2(u)) * u'
+    @test der(tanh(d2)) ≈ (1 - tanh(h(x0))^2) * h′(x0)
+end
+
