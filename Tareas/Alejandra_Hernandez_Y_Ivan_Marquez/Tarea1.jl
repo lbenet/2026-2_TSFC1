@@ -14,46 +14,43 @@ using Plots
 Genera una matriz del triángulo de Pascal, hasta un orden dado
 """
 function trianguloPascal(ord::Int)
-    triang = zeros(Int,ord,ord) # Creamos una matriz cuadrada de ceros
-    j = ceil(Int,ord/2) # Establecemos una variable en el "centro" de la matriz
+    triang = zeros(Int,ord,(ord*2)-1) # Creamos una matriz de ceros
+    j = ord # Establecemos una variable en el "centro" de la matriz
+    
     for i = 1:ord #Primero ponemos los 1s de la izquierda
         triang[i,j] = 1
-        if mod(i,2) == 0
-            j -= 1
-        end
+        j -= 1
     end
 
-    j = ceil(Int,ord/2) # Reestablecemos la variable central
+    j = ord # Reestablecemos la variable central
     for i = 1:ord # Ahora colocamos los 1s de la derecha
         triang[i,j] = 1
-        if mod(i,2) != 0
-            j+= 1
-        end
+        j += 1
     end
 
-    j = ceil(Int,ord/2)  # Colocamos un "indicador" a la mitad de la matriz
-    k = ceil(Int,ord/2) # Y una variable que vaya recorriendose cada dos lineas para ir llenando la matriz
-    i = 1   # Y una variable más para ir bajando cada fila
-    while i <= ord
-        if triang[i,j] == 0 && mod(i,2) !=0 # Si nuestra variable es 0 y está en una fila impar, sumamos el número de arriba y el que está a la derecha
-            triang[i,j] = (triang[i-1,j])+(triang[i-1,j+1])
-            j += 1 # Y nos recorremos una posición a la derecha
-        elseif triang[i,j] == 0 && mod(i,2) == 0 # Similar a lo de arriba, pero con la fila par, sumando el número de arriba y el de su izquierda
-            triang[i,j] = (triang[i-1,j-1])+(triang[i-1,j])
-            j += 1 #También nos recorremos una posición a la derecha
-        elseif triang[i,j] == 1 # Si la variable vale 1, llegamos al final de la fila
+    # Establecemos variables para el funcionamiento del proximo while loop
+
+    i = 3   # Esta indica que el loop funciona para triángulos de al menos orden 3, para menores es innecesario
+    j = ord # Esta pone nuestro punto inicial en medio de la matriz, junto con la variable anterior
+    n = 1   # Esta nos ayuda a regresar los espacios correctos al bajar cada fila
+
+    while i <= ord # Loop que va decendiendo cada fila
+        if triang[i,j] == 0 # Verificamos que estemos en un cero
+            triang[i,j] = triang[i-1,j-1] + triang[i-1,j+1] # Sumamos los dos números que tenemos "arriba"
+        end
+        if triang[i,j+2] == 1 # Si el número que sigue es un uno, entonces hemos terminado esta fila
             i += 1 # Bajamos a la fila que sigue
-            if i > 4 && mod(i,2) != 0 # Y a partir de la tercera fila, cada dos filas empezamos a ir recorriendo nuestro punto inicial uno a la izquierda
-                k -= 1
-            end
-            j = k # Reiniciamos nuestra posición inicial para comenzar con la siguiente fila
+            j = j - (2n-1) # Regresamos los espacios necesarios
+            n += 1 # Y actualizamos el número de filas recorridas
+        elseif triang[i,j+2] != 1 # Si el número que sigue no es un uno, entonces debemos seguir avanzando
+            j += 2 # Avanzamos "un lugar" (saltándonos el cero intermedio)
         end
     end
 
     return triang
 end
 
-trianguloPascal(9)
+
 # b. Usen la matriz creada para generar *otra*, en que todo>s los números
 # pares aparezcan como `false` y los impares como `true`, o alternativamente
 # como 0 y 1, respectivamente. Las funciones `isodd` o `iseven` pueden
@@ -63,11 +60,10 @@ trianguloPascal(9)
 Toma una matriz y regresa otra, reemplazando los números impares con 1 y los pares con 0
 """
 function imparYPar(mat::Matrix)
-    A = copy(mat) #Creamos una copia de matriz original, que modificaremos
-    for i in eachindex(A)
-        A[i] = isodd(A[i])
+    for i in eachindex(mat)
+        mat[i] = isodd(mat[i])
     end # Para cada entrada en la matriz reemplazamos los impares con 1 y los pares con 0
-    return A # La función regresa la matriz modificada
+    return mat # La función regresa la matriz modificada
 end
 
 # c. Dibujen (con puntos) todos los valores impares del triángulo de Pascal
@@ -81,7 +77,6 @@ function dibujarMatriz(mat::Matrix)
     x = Vector{Int}(undef,0) #Creamos vectores vacios para nuestros x y y
     y = Vector{Int}(undef,0)
     tam = size(mat) # Establecemos un vector que tiene las dimensiones de la matriz 
-    mat = copy(mat)
     for i = 1:tam[1] # Para iterar en todas las filas
         for j = 1:tam[2] # Para iterar en todas las columnas
             if mat[i,j] == 1 # Busca que el valor en la matriz sea igual a 1
