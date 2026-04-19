@@ -184,6 +184,36 @@ der(D_dual)-D_analitica
 # ## Ejercicio 3
 #
 # - A partir de lo visto en clase, *extiendan* las funciones elementales usuales para que funcionen con Duales, es decir, `sin(a::Dual)`, `cos(a::Dual)`, `tan(a::Dual)`, `^(a::Dual, n::Int)`, `sqrt(a::Dual)`, `exp(a::Dual)` y `log(a::Dual)`.
+
+function Base.:sin(a::Dual)
+    return (sin(a.fun),cos(a.fun)*a.der)
+end
+
+function Base.:cos(a::Dual)
+    return (cos(a.fun),-sin(a.fun)*a.der)
+end
+
+function Base.:log(a::Dual)
+    return (log(a.fun),a.der/a.fun)
+end
+
+function Base.:exp(a::Dual)
+    return (exp(a.fun),exp(a.fun)*a.der)
+end
+
+function Base.:tan(a::Dual)
+    return (tan(a.fun),(sec(a.fun))^2*a.der)
+end
+
+function Base.:^(a::Dual,b::Real)
+    return (a.fun^b,b*((a.fun)^(b-1))*(a.der))
+end
+
+function Base.:sqrt(a::Dual)
+    return (sqrt(a.fun),(1/2)*(1/sqrt(a.fun))*a.der)
+end
+
+
 #
 # - Al igual que antes, construyan algún conjunto de pruebas que muestre, de manera
 # sencilla, que lo que hicieron da lo que uno esperaría obtener.
