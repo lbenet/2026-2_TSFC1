@@ -38,12 +38,32 @@ function cpol(n::Int64)
     return c
 end
 
+
+"""
+Devuelve un vector de bits de tamaño n+1, cuya entrada k-ésima es el coeficiente
+del término x^k en el polinomio p=(x+1)^n módulo 2 (0 si es para, 1 si es impar)
+"""
+function cpol_odd(n::Int64)
+    c=coeffs(pol(n))
+    r=isodd.(c)
+    return r
+end
+
 """
 Devuelve un vector de tamaño n, donde todas sus entradas tienen 
 tipo BigInt y valor 0.
 """
 function zerosB(n::Int64)
     cosa::Array{BigInt,1}=zeros(n)
+    return cosa
+end
+
+"""
+Devuelve un vector de tamaño n, donde todas sus entradas tienen 
+tipo Int64 y valor 0.
+"""
+function zerosI(n::Int64)
+    cosa::Array{Int64,1}=zeros(n)
     return cosa
 end
 
@@ -60,7 +80,7 @@ function pad(v::Array{BigInt,1},size::Int64) #size >=length(v)
 end
 
 """
-Dado un vector tamaño l con entradas BigInt, lo extiende hasta un tamaño 
+Dado un vector tamaño l con entradas BigInt o Int64, lo extiende hasta un tamaño 
 deseado size (donde size >= l), rellenando hacia la izquierda y hacia la derecha
 con 0's.
 """
@@ -68,14 +88,48 @@ function pad_symm(v::Array{BigInt,1},size::Int64) #size > =length(v)
     f=size-length(v)
     recept::Array{BigInt,1}=[]
     if mod(f,2)==0
-        faltantes=zerosB(div(f,2))
+        faltantes=zeros(BigInt,div(f,2))
         append!(recept,faltantes)
         append!(recept,v)
         append!(recept,faltantes)
     else    #f mod 2 = 1
-        append!(recept,zerosB(div(f,2)))
+        append!(recept,zeros(BigInt,div(f,2)))
         append!(recept,v)
-        append!(recept,zerosB(div(f,2)+1))
+        append!(recept,zeros(BigInt,div(f,2)+1))
+    end
+    return recept
+end
+
+#método para vectores de Int64
+function pad_symm(v::Array{Int64,1},size::Int64) #size > =length(v)
+    f=size-length(v)
+    recept::Array{Int64,1}=[]
+    if mod(f,2)==0
+        faltantes=zeros(Int64,div(f,2))
+        append!(recept,faltantes)
+        append!(recept,v)
+        append!(recept,faltantes)
+    else    #f mod 2 = 1
+        append!(recept,zeros(Int64,div(f,2)))
+        append!(recept,v)
+        append!(recept,zeros(Int64,div(f,2)+1))
+    end
+    return recept
+end
+
+#método para bits
+function pad_symm(v::BitArray{1},size::Int64) #size > =length(v)
+    f=size-length(v)
+    recept::BitArray{1}=[]
+    if mod(f,2)==0
+        faltantes=BitVector(zeros(Bool,div(f,2)))
+        append!(recept,faltantes)
+        append!(recept,v)
+        append!(recept,faltantes)
+    else    #f mod 2 = 1
+        append!(recept,faltantes)
+        append!(recept,v)
+        append!(recept,BitVector(zeros(Bool,div(f,2)+1)))
     end
     return recept
 end
@@ -96,20 +150,32 @@ function insert_zeros(v::Array{BigInt,1})
     end
 end
 
-#Primer intento del tríangulo de pascal con resultado no simétrico
-"""
-Devuelve una matriz tamaño (ord+1,ord+1) cuyas entradas corresponden al
-triángulo de Pascal. Tiene apariencia asimétrica.
-
-En desuso.
-"""
-function pascal_old(ord::Int64)
-    M::Array{BigInt,2}=zeros(ord+1,ord+1) 
-    for i in 1:ord+1
-        M[i,:]=pad_symm(cpol(i-1),ord+1)
+#método para vectores de Int64
+function insert_zeros(v::Array{Int64,1})
+    if length(v) <= 1
+        return v 
+    else
+        recept::Array{Int64,1}=zeros(2*length(v)-1)
+        for i in 1:length(v)
+            recept[2*i-1]=v[i]
+        end
+        return recept
     end
-    return M
 end
+
+#método para vectores de bits
+function insert_zeros(v::BitArray{1})
+    if length(v) <= 1
+        return v 
+    else
+        recept::BitArray{1}=zeros(2*length(v)-1)
+        for i in 1:length(v)
+            recept[2*i-1]=v[i]
+        end
+        return recept
+    end
+end
+
 
 """
 Devuelve una matriz tamaño (ord+1,2ord+1), donde cada renglón 
@@ -126,13 +192,36 @@ function pascal(ord::Int64)
     return M
 end
 
+function pascal_oldd(ord::Int64)
+    M=pascal(ord)
+    return isodd.(M)
+end
+
 """
 Devuelve una matriz tamaño (ord+1,2ord+1), donde cada renglón 
 corresponde a las entradas impares del triángulo de Pascal.
 """
 function pascal_odd(ord::Int64)
-    M=pascal(ord)
-    return isodd.(M)
+    ancho=2*ord+1
+    M::Array{Int64,2}=zeros(ord+1,ancho)
+    for i in 1:ord+1
+        vec= isodd.(cpol(i-1)) .+1 .-1 #+1-1 asegura el tipo Vector{Int64} en lugar de  BitVector
+        M[i,:]=pad_symm(insert_zeros(vec),ancho)
+    end
+    return M
+end
+
+"""
+no docs yet
+"""
+function pascal_odd1(ord::Int64)
+    ancho=2*ord+1
+    M::BitArray{2}=zeros(ord+1,ancho)
+    for i in 1:ord+1
+        vec= cpol_odd(i-1)
+        M[i,:]=pad_symm(insert_zeros(vec),ancho)
+    end
+    return M
 end
 
 """
@@ -140,16 +229,21 @@ Dibuja con puntos las entradas impares del triángulo
 de Pascal.
 """
 function pascal_draw(ord::Int64)
-    M=pascal_odd(ord)
+    M=pascal_oldd(ord)
     a,b=size(M)
     p=scatter(legend=:false) #inicializa la gráfica
+    xp=[]
+    yp=[]
     for i in 1:a
         for j in 1:b
-            if M[i,j]==true
-                scatter!((j,a+1-i),mc=:black,ms=2) ##(i,j)->(j,a+1-i) rota e invierte respecto a y=a+1
+            if M[i,j]
+                append!(xp,j)
+                append!(yp,a+1-i)
+                #scatter!((j,a+1-i),mc=:black,ms=2)
             end
         end
     end
+    scatter!(xp,yp,mc=:black,ms=2)
     return p
 end
 
@@ -328,11 +422,15 @@ function caminataP2(T::Triangle, n, x_0=(1.0,1.0))
     return X
 end
 
-equilatero=equi(3)
+function sol2() #ejecuta la solución al problema 2
+    equilatero=equi(3.0)
+    cosa=caminataP2(equilatero,10000)
+    p1=drawT(equilatero)
+    p1=scatter!(cosa, mc=:red, ms=2, title="punto medio")
+end
 
-cosa=caminataP2(equilatero,10000)
-p1=drawT(equilatero)
-p1=scatter!(cosa, mc=:red, ms=2, title="punto medio")
+# sol2()
+
 
 # ## 3. Proporción distinta
 #
@@ -375,6 +473,10 @@ function caminataP3(T::Triangle, n, x_0=(1.0,1.0))
     return X
 end
 
-cosa2=caminataP3(equilatero,10000)
-p2=drawT(equilatero)
-p2=scatter!(cosa2, mc=:red, ms=2, title="punto_tercio")
+function sol3()
+    cosa2=caminataP3(equilatero,10000)
+    p2=drawT(equilatero)
+    p2=scatter!(cosa2, mc=:red, ms=2, title="punto_tercio")
+end
+
+# sol3()
