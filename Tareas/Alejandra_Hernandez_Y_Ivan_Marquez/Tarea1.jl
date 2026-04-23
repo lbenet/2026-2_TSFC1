@@ -1,7 +1,14 @@
 # Tarea 1 
 
 # ## 1. Triángulo de Pascal
+
+using Pkg
+
+Pkg.activate("./Tareas/Alejandra_Hernandez_Y_Ivan_Marquez")
+Pkg.add("Plots")
+
 using Plots
+
 #
 # a. Generen el triángulo de Pascal, hasta cierto orden `ord`, usando una
 # matriz de enteros, en la que cada renglón representa un orden distinto.
@@ -50,8 +57,7 @@ function trianguloPascal(ord::Int)
     return triang
 end
 
-
-# b. Usen la matriz creada para generar *otra*, en que todo>s los números
+# b. Usen la matriz creada para generar *otra*, en que todos los números
 # pares aparezcan como `false` y los impares como `true`, o alternativamente
 # como 0 y 1, respectivamente. Las funciones `isodd` o `iseven` pueden
 # serles útiles.
@@ -59,33 +65,27 @@ end
     function imparYPar(mat::Matrix)
 Toma una matriz y regresa otra, reemplazando los números impares con 1 y los pares con 0
 """
-function imparYPar(mat::Matrix)
-    for i in eachindex(mat)
-        mat[i] = isodd(mat[i])
-    end # Para cada entrada en la matriz reemplazamos los impares con 1 y los pares con 0
-    return mat # La función regresa la matriz modificada
-end
+imparYPar(mat::Matrix) = isodd.(mat)
 
 # c. Dibujen (con puntos) todos los valores impares del triángulo de Pascal
 # para `ord=256`. Repitan el ejercicio para `ord=1024`.
 """
-function dibujarMatriz(mat::Matrix)
-    Toma una matriz de 0s y 1s, y crea una gráfica donde se muestren los 1 como puntos y los 0 
-    como espacio vacio
+    function dibujarMatriz(mat::BitMatrix)
+Toma una matriz de 0s y 1s (Bitmatrix), y crea una gráfica donde se muestren los 1 como puntos y los 0 como espacio vacio
 """
-function dibujarMatriz(mat::Matrix)
+function dibujarMatriz(mat::BitMatrix)
     x = Vector{Int}(undef,0) #Creamos vectores vacios para nuestros x y y
     y = Vector{Int}(undef,0)
     tam = size(mat) # Establecemos un vector que tiene las dimensiones de la matriz 
-    for i = 1:tam[1] # Para iterar en todas las filas
-        for j = 1:tam[2] # Para iterar en todas las columnas
+    for j = 1:tam[2] # Para iterar en todas las columnas
+        for i = 1:tam[1] # Para iterar en todas las filas   
             if mat[i,j] == 1 # Busca que el valor en la matriz sea igual a 1
                 push!(x,i)  #Si lo es, lo coloca en nuestros vectores x y y
                 push!(y,j)
             end
         end
     end
-    graf = scatter(x,y) #Finalmente, grafica los vectores
+    graf = scatter(x,y,markersize = 0.05, markerstrokestyle = :solid) #Finalmente, grafica los vectores
     return graf
 end
 
@@ -112,9 +112,6 @@ orden1024 = dibujarMatriz(imparYPar(trianguloPascal(1024)))
 # e. Grafiquen todos los iterados $Y_n$ que guardaron, considerando
 # muuuuchos puntos.
 
-
-
-#Para simplificar las cosas, fijaré dos de los puntos al eje X con v[1]<u[1]
 function dis(p,q)        #Función distancia entre puntos 
     return sqrt((p[1]-q[1])^2 + (p[2]-q[2])^2)
 end 
@@ -157,7 +154,7 @@ n = 100000
 Y = S(v,u,w,n)
 x = [k[1] for k in Y]
 y = [k[2] for k in Y]
-scatter(x, y, markersize=1, color = :blue)
+scatter(x, y, markersize=0.05, markerstrokestyle = :solid, color = :blue)
 
 
 
@@ -165,29 +162,10 @@ scatter(x, y, markersize=1, color = :blue)
 #
 # Repitan el ejercicio anterior usando ahora, no el punto medio, sino 1/3
 # de la distancia entre el vértice elegido al azar y el iterado $Y_n$.
-#
-using Plots 
 
+# Usamos las mismas funciones del ejercicio anterior
 
-#Para simplificar las cosas, fijaré dos de los puntos al eje X con v[1]<u[1]
-function dis(p,q)        #Función distancia entre puntos 
-    return sqrt((p[1]-q[1])^2 + (p[2]-q[2])^2)
-end 
-
-function G(x,y,z)       #Función baricentro del triángulo
-    return [(x[1]+y[1]+z[1])/3,(x[2]+y[2]+z[2])/3]
-end
-
-function L(p,x,y,z)     #Función del Teo de Leibniz
-    g = G(x,y,z)
-    return dis(p,x)^2 + dis(p,y)^2 + dis(p,z)^2 - 3*(dis(p,g))^2
-end
-
-function random(x,y)     #Función para encontrar la componente en x del punto dentro del triángulo
-    return x[1] + rand()*(y[1] - x[1])
-end
-
-function S(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángulo, n es el 
+function S2(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángulo, n es el 
                       #numero de iteraciones que se quieren
     Y = []
     Y1 = [random(x,y),rand()*z[2]]
@@ -209,7 +187,7 @@ u = [2,0]
 w = [1,sqrt(3)]
 n = 100000
 
-Y = S(v,u,w,n)
+Y = S2(v,u,w,n)
 x = [k[1] for k in Y]
 y = [k[2] for k in Y]
-scatter(x, y, markersize=1, color = :blue)
+scatter(x, y, markersize=0.05, markerstrokestyle = :solid, color = :blue)
