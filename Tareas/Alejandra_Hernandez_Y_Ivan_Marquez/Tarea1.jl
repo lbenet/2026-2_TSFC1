@@ -35,7 +35,7 @@ function trianguloPascal(ord::Int)
         j += 1
     end
 
-    # Establecemos variables para el funcionamiento del proximo while loop
+    # Establecemos variables para el funcionamiento del próximo while loop
 
     i = 3   # Esta indica que el loop funciona para triángulos de al menos orden 3, para menores es innecesario
     j = ord # Esta pone nuestro punto inicial en medio de la matriz, junto con la variable anterior
@@ -129,8 +129,7 @@ function random(x,y)     #Función para encontrar la componente en x del punto d
     return x[1] + rand()*(y[1] - x[1])
 end
 
-function S(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángulo, n es el 
-                      #numero de iteraciones que se quieren
+function S(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángulo, n es el número de iteraciones que se quieren
     Y = []
     Y1 = [random(x,y),rand()*z[2]]
     while L(Y1,x,y,z) != dis(x,y)^2 
@@ -165,8 +164,7 @@ scatter(x, y, markersize=0.05, markerstrokestyle = :solid, color = :blue)
 
 # Usamos las mismas funciones del ejercicio anterior
 
-function S2(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángulo, n es el 
-                      #numero de iteraciones que se quieren
+function S2(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángulo, n es el número de iteraciones que se quieren
     Y = []
     Y1 = [random(x,y),rand()*z[2]]
     while L(Y1,x,y,z) != dis(x,y)^2 
@@ -175,7 +173,7 @@ function S2(x,y,z,n)   # x,y,z son los puntos en el plano que forman el triángu
     m=1
     while m < n+1
         A = rand([x,y,z]) 
-        Y1 = [(2*A[1]+Y1[1])/3,(2*A[2]+Y1[2])/3]  #La única modificación respecto al otro código está aquí
+        Y1 = [(2*A[1]+Y1[1])/3,(2*A[2]+Y1[2])/3]
         push!(Y,Y1)
         m = m+1
     end

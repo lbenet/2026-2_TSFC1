@@ -6,7 +6,7 @@
 # matriz de enteros, en la que cada renglón representa un orden distinto.
 # Hagan que la apariencia de este vector sea lo más simétrico posible.
 #
-# b. Usen la matriz creada para generar *otra*, en que todo>s los números
+# b. Usen la matriz creada para generar *otra*, en que todos los números
 # pares aparezcan como `false` y los impares como `true`, o alternativamente
 # como 0 y 1, respectivamente. Las funciones `isodd` o `iseven` pueden
 # serles útiles.
@@ -32,7 +32,7 @@
 #
 # e. Grafiquen todos los iterados $Y_n$ que guardaron, considerando
 # muuuuchos puntos.
-#Para simplificar las cosas, fijaré dos de los puntos al eje X con v[1]<u[1]
+#
 # ## 3. Proporción distinta
 #
 # Repitan el ejercicio anterior usando ahora, no el punto medio, sino 1/3
