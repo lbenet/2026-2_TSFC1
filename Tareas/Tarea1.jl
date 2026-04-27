@@ -1,6 +1,4 @@
-# # Tarea 1
-
-# Tarea 1
+# Tarea 1 
 
 # ## 1. Triángulo de Pascal
 #
@@ -15,16 +13,13 @@
 #
 # c. Dibujen (con puntos) todos los valores impares del triángulo de Pascal
 # para `ord=256`. Repitan el ejercicio para `ord=1024`.
-
-
 # ## 2. Triángulo equilátero
 #
 # Sean $X_1$, $X_2$ y $X_3$ los vértices de un triángulo equilátero en el
 # plano. Implementen el siguiente algoritmo.
-#
+##
 # a. Elijan al azar un punto dentro del triángulo equilátero, que llamaré $Y_0$.
 # Es la condición inicial.
-#
 # b. Elijan al azar uno de los vértices $X_1$, $X_2$ y $X_3$, que llamaré
 # $A_0$.
 #
@@ -37,10 +32,11 @@
 #
 # e. Grafiquen todos los iterados $Y_n$ que guardaron, considerando
 # muuuuchos puntos.
-
-
+#
 # ## 3. Proporción distinta
 #
 # Repitan el ejercicio anterior usando ahora, no el punto medio, sino 1/3
 # de la distancia entre el vértice elegido al azar y el iterado $Y_n$.
 #
+
+
