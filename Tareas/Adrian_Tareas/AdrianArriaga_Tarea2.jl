@@ -222,7 +222,7 @@ end
     
     #Se crea un dual evaluado en x_0 = π:
 
-    @test dual(pi) == DualNumb(pi, 1.0)
+    @test dual(pi) == DualNumb(Float64(pi), 1.0)
 
     x_pi = dual(π) # Equivale a evaluar en x = pi
     x_zero = dual(0.0)
@@ -232,9 +232,9 @@ end
     # Usamos ≈ porque pi tiene infinitos decimales.
     @test der(exp(x_zero)) ≈ 1.0 
     @test der(sin(x_pi)) ≈ -1.0 
-    @test der(cos(x_zero)) ≈ -1.0 
+    @test der(cos(dual(0.5*π))) ≈ -1.0 
     @test der(tan(x_zero)) ≈ 1.0 
-    @test der(tan(x_uno)) ≈ 3.425518820814759
+    @test der(tan(x_one)) ≈ 3.425518820814759
     @test der(sqrt(dual(4.0))) ≈ 0.25
 
     @test der(cosh(x_zero)) ≈ 0.0
