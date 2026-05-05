@@ -165,7 +165,7 @@ begin
     sin(u::Dual) = Dual(sin(u.fun), u.der*cos(u.fun))
     cos(u::Dual) = Dual(cos(u.fun), -u.der*sin(u.fun))
     tan(u::Dual) = Dual(tan(u.fun), u.der*(sec(u.fun))^2)
-    ^(u::Dual, n::Int) = Dual(u.fun ^ n, n*u.fun^(n-1)*u.der)
+    # ^(u::Dual, n::Int) = Dual(u.fun ^ n, n*u.fun^(n-1)*u.der) Implementacion no necesaria debido al uso de literalpow
     sqrt(u::Dual) = Dual(sqrt(u.fun), u.der/(2*sqrt(u.fun)))
     exp(u::Dual) = Dual(exp(u.fun), u.der*exp(u.fun))
     log(u::Dual) = Dual(log(u.fun), u.der/u.fun)
