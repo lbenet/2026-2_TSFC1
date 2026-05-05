@@ -12,12 +12,12 @@
     Estructura que representa a los números duales. Dual es subtipo de Real y acepta como campos su parte real **fun**
     y su parte derivada **der**; ambos campos son subtipos de Real.
 """
-# NOTE Dual es subtipo de Real porque la promoción solo es aplicada automáticamente a ops. aritméticas del subtipo Number. Como Real es subtipo de Number,
-# el Dual debe ser subtipo de Real o Number para cumplir con el inciso d.
 struct Dual{T<:Real}<:Real
     fun::T
     der::T
 end
+# NOTE Dual es subtipo de Real porque la promoción solo es aplicada automáticamente a ops. aritméticas del subtipo Number. Como Real es subtipo de Number,
+# el Dual debe ser subtipo de Real o Number para cumplir con el inciso d.
 
 # NOTE Esta línea se encarga de que si se introducen dos tipos distintos en los campos del Dual, los promueve al mismo tipo.
 Dual(f::Real, d::Real) = Dual(promote(f, d)...)
@@ -37,7 +37,7 @@ end
 # un sólo valor (en lugar de los dos requeridos). Esto corresponderá a
 # $\mathbb{D}_{x_0}c = (c, 0)$, donde $c$ es una constante (real).
 
-Dual(c::Real) = Dual(Float64(c), zero(Float64))
+Dual(c::T) where {T<:Real} = Dual(c, zero(T))
 
 # d. Extiendan los métodos que permitan sumar/restar y multiplicar/dividir un
 # número (`::Real`) y un `::Dual`. (Recuerden que ciertas operaciones son conmutativas!).
@@ -56,7 +56,7 @@ Dual(c::Real) = Dual(Float64(c), zero(Float64))
     Dual{Int} isa Type{Dual}
     Dual{Int} isa Type{Dual{Int}}
 begin
-    # NOTE Convierte una variabled de tipo Real **x** a un Dual subtipo de Real de la forma x+0.
+    # NOTE Convierte una variable de tipo Real **x** a un Dual subtipo de Real de la forma x+0.
     Base.convert(::Type{Dual{T}}, x::Real) where {T<:Real}= Dual{T}(x, zero(T))
     # NOTE Convierte una estructura dual a un dual subtipo Real. El motivo es llevar tanto el dual como la variable Real al mismo nivel.
     Base.convert(::Type{Dual{T}}, x::Dual) where {T<:Real}= Dual{T}(x.fun, x.der)
@@ -84,21 +84,38 @@ end
 # que lo que
 # implementaron da el resultado que debería ser. Para esto, pueden usar la librería
 # estándard [`Test`](https://docs.julialang.org/en/v1/stdlib/Test/) de Julia.
+
+#=
 import Pkg;
 Pkg.add("Symbolics")
 using Symbolics
 
 # NOTE Esta parte de codigo solo es simbolico para no realizar la simplificacion a mano
 @variables x
-a = simplify(expand((3(2+x)^2 - 8(2+x) + 5) + (7(2+x)^3 - 1)));
-b = simplify(expand((3(2+x)^2 - 8(2+x) + 5) - (7(2+x)^3 - 1)));
-c = simplify(expand((7(2+x)^3 - 1) - (3(2+x)^2 - 8(2+x) + 5)));
-d = simplify(expand((3(2+x)^2 - 8(2+x) + 5) * (7(2+x)^3 - 1)));
-e = simplify(expand((3(2+x)^2 - 8(2+x) + 5) / (7(2+x)^3 - 1)));
-g = simplify(expand((7(2+x)^3 - 1) / (3(2+x)^2 - 8(2+x) + 5)));
+a = simplify(expand((3(2+x)^2 - 8(2+x) + 5) + (7(2+x)^3 - 1)))
+b = simplify(expand((3(2+x)^2 - 8(2+x) + 5) - (7(2+x)^3 - 1)))
+c = simplify(expand((7(2+x)^3 - 1) - (3(2+x)^2 - 8(2+x) + 5)))
+d = simplify(expand((3(2+x)^2 - 8(2+x) + 5) * (7(2+x)^3 - 1)))
+e = simplify(expand((3(2+x)^2 - 8(2+x) + 5) / (7(2+x)^3 - 1)))
+g = simplify(expand((7(2+x)^3 - 1) / (3(2+x)^2 - 8(2+x) + 5)))
+D = Differential(x)
 
-u = Dual(3*2^2 - 8*2 + 5, 6*2 - 8)
-w = Dual(7*2^3 - 1, 21*2^2)
+u+w == Dual(substitute(a, Dict(x => 2)),substitute(expand_derivatives(D(a)), Dict(x => 2)))
+u-w == Dual(substitute(b, Dict(x => 2)),substitute(expand_derivatives(D(a)), Dict(x => 2)))
+w-u == Dual(substitute(c, Dict(x => 2)),substitute(expand_derivatives(D(a)), Dict(x => 2)))
+u*w == Dual(substitute(d, Dict(x => 2)),substitute(expand_derivatives(D(a)), Dict(x => 2)))
+u/w == Dual(substitute(e, Dict(x => 2)),substitute(expand_derivatives(D(a)), Dict(x => 2)))
+w/u == Dual(substitute(f, Dict(x => 2)),substitute(expand_derivatives(D(a)), Dict(x => 2)))
+=#
+
+U(x) = 3(x)^2 - 8(x) + 5
+W(x) = 7(x)^3 - 1 
+xdual = Dual(2.0, 1.0)
+u = U(xdual)
+w = W(xdual)
+u == Dual(U(2.0), 6*2-8)
+w == Dual(W(2.0), 21*2^2)
+
 using Test
 @testset "aritmetica dual" begin
     @test u+w ≈ Dual(56,88)
@@ -129,7 +146,7 @@ end
 # ```
 
 function dual(x_0)
-    return Dual(x_0, 1)
+    return Dual(x_0, one(x_0))
 end
 
 begin
@@ -143,7 +160,7 @@ end
 # - A partir de lo visto en clase, *extiendan* las funciones elementales usuales para que funcionen con Duales, es decir, `sin(a::Dual)`, `cos(a::Dual)`, `tan(a::Dual)`, `^(a::Dual, n::Int)`, `sqrt(a::Dual)`, `exp(a::Dual)` y `log(a::Dual)`.
 
 begin
-    import Base: sin, cos, tan, ^, sqrt, exp, log, ≈
+    import Base: sin, cos, tan, ^, sqrt, exp, log, ≈, ==
 
     sin(u::Dual) = Dual(sin(u.fun), u.der*cos(u.fun))
     cos(u::Dual) = Dual(cos(u.fun), -u.der*sin(u.fun))
@@ -153,6 +170,7 @@ begin
     exp(u::Dual) = Dual(exp(u.fun), u.der*exp(u.fun))
     log(u::Dual) = Dual(log(u.fun), u.der/u.fun)
     ≈(u::Dual, v::Dual) = u.fun ≈ v.fun && u.der ≈ v.der
+    ==(u::Dual, v::Dual) = u.fun == v.fun && u.der == v.der
 end
 
 # - Al igual que antes, construyan algún conjunto de pruebas que muestre, de manera
@@ -160,10 +178,6 @@ end
 
 θ = dual(pi/4)
 @testset "trigos y mas dual" begin
-    # NOTE Uso de broken en las tres trigonometricas debido a que siempre resultan en fallo a pesar de que son similares.
-    # e.g.               sin(θ) = Dual{Float64}(0.7071067811865475, 0.7071067811865476)
-    # Dual(1/sqrt(2),1/sqrt(2)) = Dual{Float64}(0.7071067811865475, 0.7071067811865475)
-    # El uso de atol tampoco ayudo a mostrar que dan resultados efectivamente iguales.
     @test sin(θ) ≈ Dual(1/sqrt(2),1/sqrt(2)) 
     @test cos(θ) ≈ Dual(1/sqrt(2),-1/sqrt(2)) 
     @test tan(θ) ≈ Dual(1,2) 
