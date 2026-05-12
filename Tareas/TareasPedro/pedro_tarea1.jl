@@ -1,12 +1,8 @@
 # # Tarea 1
 # Por: Meneses Orozco Pedro Damian.
 # Tarea 1
-begin
-    using Pkg
-    Pkg.add("Plots") #Añadimos la paquetería Plots para poder dibujar
-    using Plots #Cargamos la paquetería Plots    
-end
 
+using Plots 
 
 # ## 1. Triángulo de Pascal
 #
@@ -25,7 +21,7 @@ se realiza el algoritmo de suma que da los valores en el triángulo de Pascal
 =#
 
 function triangulo_pascal(ord::Int)
-
+    ord = ord + 1
     #matriz de ceros
     A = zeros(Int, ord, 2*ord - 1)
     A[1,ord] = 1
@@ -82,15 +78,9 @@ Función que convierte cualquier matriz de 2 dimensiones de enteros en una nueva
 booleanos, si el número es par entonces coloca 'false' y si es impar coloca 'true'.
 =#
 
-
-function par_impar_matriz(mat::Matrix{Int})
-    #Crea una nueva matriz de booleanos del tipo BitMatrix
-    A = isodd.(mat)
-    return A
-end
+par_impar_matriz(mat::Matrix{Int}) = isodd.(mat) #Crea una nueva matriz de booleanos del tipo BitMatrix
 
 par_impar_matriz(A)
-
 
 
 # c. Dibujen (con puntos) todos los valores impares del triángulo de Pascal
@@ -122,11 +112,11 @@ function plot_pascal_impares(ord::Int)
         y = Vector{Int64}()
     end
     
-    for i in 1:ord 
-        for j in 1:(2*ord - 1)
+    for i in 1:(ord+1)
+        for j in 1:(2*ord + 1)
             if mat[i,j]
                 push!(x,j)
-                push!(y,-i+ord+1)
+                push!(y,-i+ord+2)
             end
         end
     end
@@ -160,17 +150,20 @@ end
 #=
 Escogemos 2 flotantes entre 0 y 1, uno para la coordenada x y uno para la coordenada y, si
 el de la coordenada "y" se sale del triángulo lo redefinimos hasta que cumpla la condición
-y1 < tan(π/3)*x1 (tan(π/3)=sqrt(3)), para que esté dentro del tríangulo equilátero.
+y1 < tan(π/3)*x1 (tan(π/3)=sqrt(3)) y que y1< tan(π/3)*(x1-1), para que esté dentro del tríangulo equilátero.
 =#
 
-begin
+function escoger_2fotantes_triangulo()
     x1 = rand()
     y1 = rand()
-    while y1 >= sqrt(3)*x1
+    while y1 >= sqrt(3)*x1 || y1 >= -sqrt(3)*(x1 - 1)
         y1 = rand()
     end
+    return [x1,y1]
 end
-Y_0 = [x1, y1]
+
+Y_0 = escoger_2fotantes_triangulo()
+
 
 # b. Elijan al azar uno de los vértices $X_1$, $X_2$ y $X_3$, que llamaré
 # $A_0$.
@@ -193,18 +186,16 @@ vectores Y:
 Primero guardamos lo que ya tenemos:
 =#
 begin
-    A = [A_0]
     Y = [Y_0, Y_1]
     Yx = [Y_0[1], Y_1[1]]
     Yy = [Y_0[2], Y_1[2]]
 end
 
-
-for i in 2:10000
-    push!(A, rand([X_1, X_2, X_3 ])) # Paso b. Guardamos A_{i-1}
-    push!(Y, (Y[i] + A[i])/2) # Paso c. Guardamos Y_i
-    push!(Yx, Y[i+1][1]) # Guardamos la coordenada x de Y_i
-    push!(Yy, Y[i+1][2]) # Guardamos la coordenada y de Y_i
+for i in 1:10000
+    a = rand([X_1, X_2, X_3]) # Paso b. Encontramos A_i
+    y_new = (Y[end] + a) / 2 # Paso c. Guardamos Y_{i+1}
+    push!(Yx, y_new[1]) # Guardamos la coordenada x de Y_{i+1}
+    push!(Yy, y_new[2]) # Guardamos la coordenada y de Y_{i+1}
 end
 
 # e. Grafiquen todos los iterados $Y_n$ que guardaron, considerando
@@ -233,47 +224,28 @@ begin
     X_3 = [0.5, sqrt(3/4)]
 end
 
-#=
-Para hacer el inciso a de nuevo:
-Escogemos 2 flotantes entre 0 y 1, uno para la coordenada x y uno para la coordenada y, si
-el de la coordenada y se sale del triángulo lo redefinimos hasta que cumpla la condición
-y1 < tan(π/3)*x1 (tan(π/3)=sqrt(3)), para que esté dentro del tríangulo equilátero.
-=#
-
-begin
-    x13 = rand()
-    y13 = rand()
-    while y13 >= sqrt(3)*x13
-        y13 = rand()
-    end
-end
-Y_03 = [x13, y13]
-
-#Eligo al azar uno de los vertices y le llamo A_03, para hacer el inciso b.
-A_03 = rand([X_1, X_2, X_3 ])
-#Ahora, en vez de encontrar el punto medio, tomaremos el punto tercio.
-Y_13 = (Y_03 + A_03)/3
-
-#=
-Ahora, vamos a guardar todos los iterados A_r3 en un vector de vectores A3 y todas las Y_r3 en un vector de
-vectores Y3:
-
-Primero guardamos lo que ya tenemos:
-=#
-begin
-    A3 = [A_03]
-    Y3 = [Y_03, Y_13]
+function triangulo_un_tercio(p1::Vector,p2::Vector,p3::Vector,n::Int)
+    #=
+    Función que utiliza los 3 puntos del triángulo equilatero para que 
+    hacer todo el procedimiento del problema 2 en una sola función a n número
+    de iteraciones. 
+    =#
+    @assert n > 2 "El número de iteraciones debe ser mayor que 2"
+    Y_03 = escoger_2fotantes_triangulo()
+    A_03 = rand([p1, p2, p3 ])
+    Y_13 = (Y_03 + A_03)/3 # Tomar el punto tercio
+    # Ahora, vamos a guardar todas componentes de los puntos Y_r3 en las listas Yx3 y Yy3.
     Yx3 = [Y_03[1], Y_13[1]]
     Yy3 = [Y_03[2], Y_13[2]]
+    for i in 1:(n-1)
+        a = rand([X_1, X_2, X_3]) # Paso b. Calculamos A_i3
+        y_new = (Y[end] + a) / 3 #Encontramos punto tercio. Guardamos Y_{i+1}3
+        push!(Yx, y_new[1]) # Guardamos la coordenada x de Y_{i+1}3
+        push!(Yy, y_new[2]) # Guardamos la coordenada y de Y_{i+1}3
+    end
+    return Yx3,Yy3
 end
-
-
-for i in 2:100000
-    push!(A3, rand([X_1, X_2, X_3 ])) # Paso b. Guardamos A_{i-1}3
-    push!(Y3, (Y3[i] + A3[i])/3) # Encontramos punto tercio. Guardamos Y_i3
-    push!(Yx3, Y3[i+1][1]) # Guardamos la coordenada x de Y_i3
-    push!(Yy3, Y3[i+1][2]) # Guardamos la coordenada y de Y_i3
-end
+Yx3,Yy3 = triangulo_un_tercio(X_1,X_2,X_3,100000)
 
 #Graficando los Y_{r}3
 
@@ -281,4 +253,3 @@ scatter(Yx3,Yy3, ms = 0.5, msw = 0.1,
     aspect_ratio = :equal,
     color = :blue, legend=:none,
     framestyle = :none)
-
