@@ -1,4 +1,4 @@
-# Universalidad en el mapeo cuadrático
+# # Universalidad en el mapeo cuadrático
 
 # ## Motivación
 
