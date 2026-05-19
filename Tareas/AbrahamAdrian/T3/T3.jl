@@ -167,3 +167,24 @@ fAproximada = fs[end]
 # en el límite de \$n\$ muy grande.
 #
 
+
+"""
+Aproxima el valor de α a partir de los mapeos cuadráticos que utilizan 
+los valores de c para ciclos superestables desde c₀ hasta cₙ
+
+"""
+function approxA(n)
+    cs, _ = obtainNCs(n)
+    ds = [0.0]
+    for (i, c) in enumerate(cs)
+        if i != 1
+            vals = abs.(accumulate((x, _) -> Q(x, c), 1:2^(i-1), init=0.0))
+            push!(ds, minimum(filter(x -> !isapprox(x, 0.0, atol=1e-5), vals)))
+        end
+    end
+    αs = [-ds[i]/ds[i+1] for i in 1:length(ds)-1]
+    return ds, αs
+end
+ds, αs = approxA(8)
+αAproximada = αs[end]
+
