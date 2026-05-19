@@ -205,7 +205,7 @@ Base.:(≈)(a::Dual, b::Dual) = a.fun ≈ b.fun && a.der ≈ b.der
 @testset "Pruebas ejercicio 3" begin 
     x = Dual(4,12)
     
-    @test sin(x) ≈ Dual(sin(4), cos(4)*12 )
+    @test sin(x) ≈ der(sen(x))
     @test cos(x) ≈ Dual(cos(4),-sin(4)*12)
     @test log(x) ≈ Dual(log(4), 12/4)
     @test exp(x) ≈ Dual(exp(4),exp(4)*12)
