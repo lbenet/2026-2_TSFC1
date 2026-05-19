@@ -54,9 +54,6 @@ end
 # opción es usar `promote` y `convert` para definir reglas de promoción y conversión;
 # la documentación de Julia tiene más información sobre esto.
 
-import Base: convert
-convert(::Type{Dual}, x::T) where {T<:Real} = Dual(x,x)
-
 import Base: +
 +(a::Dual, b::Real) = +(a, convert(Dual, b))
 +(a::Real, b::Dual) = +(convert(Dual, a), b)
