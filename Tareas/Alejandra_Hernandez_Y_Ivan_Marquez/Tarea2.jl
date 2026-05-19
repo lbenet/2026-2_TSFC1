@@ -100,28 +100,23 @@ using Test
     y = Dual(3,6)
     
 #Operaciones aritmeticas 
-    @test x+y == Dual(2+3,5+6)
-    @test x-y == Dual(2-3,5-6)
-    @test x*y == Dual(2*3,(2*6)+(5*3))
-    @test x/y == Dual(2/3 , ((5*3)-(2*6))/3^2)
-
-#De Reales a duales
-    @test D(3) == Dual(3,0)
+    @test x+y == Dual(5,11)
+    @test x-y == Dual(-1,-1)
+    @test x*y == Dual(6,27)
+    @test x/y == Dual(2/3 , 1/3)
 
 #Extensión de operaciones aritmeticas, de rea-dual y dual-real
-    @test 3+x == Dual(3+2,3+5)
-    @test x+3 == Dual(3+2,3+5)
-    @test 3+x == x+3
+    @test 6+x == Dual(8,5)
+    @test x+6 == Dual(8,5)
     
-    @test 3-x == Dual(3-2,3-5)
-    @test x-3 == Dual(2-3,5-3)
+    @test 3-x == Dual(1,-5)
+    @test x-3 == Dual(-1,5)
     
-    @test x*3 == x*Dual(3,3)
-    @test 3*x == Dual(3,3)*x
-    @test x*3 == 3*x
+    @test x*3 == Dual(6,15)
+    @test 3*x == Dual(6,15)
 
-    @test x/3 == x/Dual(3,3)
-    @test 3/x == Dual(3,3)/x 
+    @test x/3 == Dual(2/3,5/3)
+    @test 3/x == Dual(3/2,-15/4) 
 
 #Funciones fun y der
     @test fun(x) == 2
