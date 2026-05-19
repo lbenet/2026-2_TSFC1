@@ -43,7 +43,7 @@ end
 # un sólo valor (en lugar de los dos requeridos). Esto corresponderá a
 # $\mathbb{D}_{x_0}c = (c, 0)$, donde $c$ es una constante (real).
 
-function D(a::Real)
+function Dual(a::Real)
     c = Dual(a,0.0)
     return c
 end
