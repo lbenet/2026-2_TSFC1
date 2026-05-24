@@ -50,6 +50,19 @@ module NumDual
     /(a::Dual, b::Real) = /(a, convert(Dual, b))
     /(a::Real, b::Dual) = /(convert(Dual, a), b)
 
+    # Función fun, es la parte real
+
+    function fun(a::Dual)
+        return a.fun
+    end
+
+    # Función der, corresponde a la parte epsilon
+
+    function der(a::Dual)
+        return a.der
+    end
+
+
     function Base.:sin(a::Dual)
         return Dual(sin(a.fun),cos(a.fun)*a.der)
     end
