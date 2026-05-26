@@ -109,6 +109,7 @@ using Test
     #Punto de evaluación
     a = 2.0
     u = Dual(a, 1.0)
+    v = Dual(0.0, 0.0)
 
 
     #1. Suma
@@ -123,6 +124,7 @@ using Test
 
     #3. División
     f = u / u   # 1
+    g = u / v
     @test fun(f) ≈ 1.0
     @test der(f) ≈ 0.0
 
