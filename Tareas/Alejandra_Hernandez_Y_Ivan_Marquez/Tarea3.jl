@@ -25,10 +25,8 @@ using .NumDual
 # \$f(x) = x^3 - 15.625\$, para verificar que su implementación funciona.
 #
 
-function cerosNewton(f) # Obtiene un solo cero de la función dada
-    a = 1 # Establecemos una variable inicial para buscar nuestro cero
-    
-    for i = 0:10 # Iteramos unicamente 10 veces
+function cerosNewton(f,a) # Obtiene un solo cero de la función dada, estableciendo una variable inicial para buscar nuestro cero
+    for i = 0:10 # Iteramos unicamente 10 veces, pero podemos aumentar este número para tener más precisión
         a = a - (fun(f(dual(a))))/(der(f(dual(a))))
     end
 
@@ -43,9 +41,25 @@ f(cerosNewton(f))
 # (c) Encuentren *todos* los puntos fijos del mapeo \$F(x) = x^2 - 1.1\$
 # usando la función que implementaron para el método de Newton.
 #
+
+F(x) = x^2 - 1.1 
+G(x) = x^2 - x - 1.1 # Debemos encontrar los ceros cuando F(x) = x => G(x) = F(x)-x
+
+#  Como la función es cuadrática, solo hay 2 posibles ceros, los buscamos iniciando en 1 y -1 respectivamente
+cerosNewton(G,1)
+cerosNewton(G,-1)
+
+
 # (d) Encuentren los puntos *de periodo 2* para el mapeo \$F(x) = x^2 - 1.1\$
 # usando la función que implementaron para el método de Newton.
 #
+
+#H(x) = x^4 - 2.2x^2 -x + 0.11
+
+#cerosNewton(H,-1)
+#cerosNewton(H,25)
+#cerosNewton(H,40)
+
 # (e) Usen los números duales para mostrar que los puntos de periodo 2
 # para el mapeo \$F(x) = x^2 -1\$ son linealmente estables (atractivos).
 
