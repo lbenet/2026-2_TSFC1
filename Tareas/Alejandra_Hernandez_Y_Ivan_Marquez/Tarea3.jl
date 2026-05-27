@@ -15,11 +15,31 @@
 # using .NumDual
 # ```
 #
+
+include("ModuloDual.jl")
+using .NumDual
+
 # (b) Escriban una función que implemente el método de Newton para funciones
 # en una dimensión. La derivada que se requiere deberá ser calculada usando
 # los números duales. Obtengan usando esta implementación un cero de
 # \$f(x) = x^3 - 15.625\$, para verificar que su implementación funciona.
 #
+
+function cerosNewton(f) # Obtiene un solo cero de la función dada
+    a = 1 # Establecemos una variable inicial para buscar nuestro cero
+    
+    for i = 0:10 # Iteramos unicamente 10 veces
+        a = a - (fun(f(dual(a))))/(der(f(dual(a))))
+    end
+
+    return a
+
+end
+
+f(x) = x^3-15.625
+cerosNewton(f)
+f(cerosNewton(f))
+
 # (c) Encuentren *todos* los puntos fijos del mapeo \$F(x) = x^2 - 1.1\$
 # usando la función que implementaron para el método de Newton.
 #
@@ -48,6 +68,9 @@
 # es decir, den una estimación de \$\delta = f_\infty\$.
 #
 
+
+
+
 # ## Ejercicio 3
 #
 # (Este ejercicio requiere el cálculo de las $c_n$ del ejercicio anterior.)
@@ -64,3 +87,6 @@
 # ```
 # en el límite de \$n\$ muy grande.
 #
+
+
+

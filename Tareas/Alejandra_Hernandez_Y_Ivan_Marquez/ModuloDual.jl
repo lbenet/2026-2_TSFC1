@@ -1,5 +1,5 @@
 module NumDual
-    export Dual,dual
+    export Dual,dual, fun, der
     
     # Copio todo lo relacionado a Duales y operaciones con estos desde la Tarea 2
     struct Dual
@@ -31,24 +31,24 @@ module NumDual
         c = Dual(a.fun / b.fun, ((a.der * b.fun) - (a.fun * b.der))/((b.fun)^2))
     end    
 
-    import Base: convert
-    convert(::Type{Dual}, x::T) where {T<:Real} = Dual(T)
+    function Dual(a::Real)
+        c = Dual(a,0.0)
+        return c
+    end
+
 
     import Base: +
-    +(a::Dual, b::Real) = +(a, convert(Dual, b))
-    +(a::Real, b::Dual) = +(convert(Dual, a), b)
-    
+    +(a::Dual, b::Real) = +(a, Dual(b))
+    +(a::Real, b::Dual) = +(Dual(a), b)
     import Base: -
-    -(a::Dual, b::Real) = -(a, convert(Dual, b))
-    -(a::Real, b::Dual) = -(convert(Dual, a), b)
-    
+    -(a::Dual, b::Real) = -(a, Dual(b))
+    -(a::Real, b::Dual) = -(Dual(a), b)
     import Base: *
-    *(a::Dual, b::Real) = *(a, convert(Dual, b))
-    *(a::Real, b::Dual) = *(convert(Dual, a), b)
-    
+    *(a::Dual, b::Real) = *(a, Dual(b))
+    *(a::Real, b::Dual) = *(Dual(a), b)
     import Base: /
-    /(a::Dual, b::Real) = /(a, convert(Dual, b))
-    /(a::Real, b::Dual) = /(convert(Dual, a), b)
+    /(a::Dual, b::Real) = /(a, Dual(b))
+    /(a::Real, b::Dual) = /(Dual(a), b)
 
     # Función fun, es la parte real
 
@@ -97,4 +97,5 @@ module NumDual
         c = Dual(a,1.0)
         return c
     end
+    
 end
