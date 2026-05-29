@@ -25,28 +25,23 @@ using .numDuales
 # \$f(x) = x^3 - 15.625\$, para verificar que su implementación funciona.
 
 """
-Regresa todas las raíces encontradas para la función f dentro del intervalo rg (de tipo LinRange) y los puntos fijos que generan una órbita de periodo periodicity.
+Regresa todas las raíces encontradas para la función f dentro del intervalo rg (de tipo LinRange). Para obtener puntos fijos de una función f, es necesario introducir una función anónima en el argumento de la forma "x -> f(x) - x". Regresa un array con los ceros/pts. fijos encontrados en el rango establecido.
 """
-function mN(f,n,rg::LinRange, periodicity = 1)
+function metNewt(f,rg::LinRange)
     rs = [] # Array de ceros encontrados
     pps = [] # Array de puntos periodicos encontrados
-    g = reduce(∘, fill(f,periodicity)) # Compone la funcion f, 'periodicity' veces
     for p in rg
         # println("Currently at p = $p")
         try
-            d = g(dual(p))
+            d = f(dual(p))
             x = Float64[p...]
             xi = x[1]
             while (length(x) < 2) || (x[end] ≉  x[end-1]) # Sabemos que es zero si es punto fijo aka f(x) = x
-                if periodicity == 1 # El método de Newton cambia para funciones compuestas
-                    xi1 = xi - (d.fun/d.der)
-                else
-                    xi1 = xi - ((d.fun-xi)/(d.der-1))
-                end
+                xi1 = xi - (d.fun/d.der)
                 # println(xi1)
                 ((isnan(xi1)) || (isinf(xi1))) && (error("Se obtiene valor NaN o inf.")) # Para evitar ciclos causados por NaN o inf.
                 push!(x, xi1)
-                d = g(dual(xi1))
+                d = f(dual(xi1))
                 xi = xi1
                 (length(x) > 100) && ((error("En x = $p, más de 100 iteraciones ocurrieron sin encontrar un cero.")) && break)
                 # Para evitar ciclos infinitos causados por un mapeo que no converge.
@@ -62,40 +57,43 @@ function mN(f,n,rg::LinRange, periodicity = 1)
     end
     # Checa cual grupo de valores es la serie periodica
     # De manera general, checa de los valores obtenidos, cuales generan la órbita periodo periodicity
-    if periodicity > 1
-        for r in rs
-            # println("Comparando $r")
-            temp = [r]
-            for i in 1:periodicity
-                t = f(temp[end])
-                # println("f($r) igual a $t")
-                ((any(r -> isapprox(t, r, atol=1e-8), rs)) && !(t ≈ temp[1])) && (push!(temp,t))
-            end
-            ((!any(temp[1] .∈ pps)) && (length(temp) == periodicity)) && (push!(pps,temp))
-        end
-    end
+
+    # Se dejan como comentario pues son buena idea pero queda obsoleta debido a la implementacion del conjugado como argumento
+    # if periodicity > 0
+    #     g(x) = f(x) + x
+    #     for r in rs
+    #         println("Comparando $r")
+    #         temp = [r]
+    #         for i in 1:periodicity
+    #             t = g(temp[end])
+    #             println("f($r) igual a $t")
+    #             ((any(r -> isapprox(t, r, atol=1e-8), rs)) && !(t ≈ temp[1])) && (push!(temp,t))
+    #         end
+    #         ((!any(temp[1] .∈ pps)) && (length(temp) == periodicity)) && (push!(pps,temp))
+    #     end
+    # end
     # TODO reescribir mensajes para tener en cuenta periodicidad y demas
     # message = length(rs) == 0 ? "No se han encontrado ceros para la funcion $(@show f) ∈ [$(rg.start), $(rg.stop)]." : length(rs) == n ? "Los ceros para la funcion $(@show f) ∈ [$(rg.start), $(rg.stop)] son $(rs)." : "Se encontraron $(length(rs)) soluciones para la funcion $(@show f) ∈ [$(rg.start), $(rg.stop)]: $(rs)."
     # println(message)
-    return rs, pps
+    return rs#=, pps=#
 end
 
-f(x) = x^3 - 15.625
-mN(f,1, LinRange(0,1,2))
+b(x) = x^3 - 15.625
+metNewt(x ->b(x)-x, LinRange(0,1,2))
 # (c) Encuentren *todos* los puntos fijos del mapeo \$F(x) = x^2 - 1.1\$
 # usando la función que implementaron para el método de Newton.
 
-g(x) = x^2 - 1.1
-mN(g,2, LinRange(-10,10,10))
+c(x) = x^2 - 1.1
+metNewt(x ->c(x)-x, LinRange(-10,10,10))
 # (d) Encuentren los puntos *de periodo 2* para el mapeo \$F(x) = x^2 - 1.1\$
 # usando la función que implementaron para el método de Newton.
-mN(g,2, LinRange(-1000,100,10001),2)
+metNewt(x -> c(c(x))-x, LinRange(-10,10,101))
 
 # (e) Usen los números duales para mostrar que los puntos de periodo 2
 # para el mapeo \$F(x) = x^2 -1\$ son linealmente estables (atractivos).
 e(x) = x^2 -1
-e1, e2 = mN(e,2, LinRange(-1000,100,10001),2)
-abs(e(dual(e2[1][1])).der*e(dual(e2[1][2])).der)
+e1 = metNewt(x -> e(e(x))-x, LinRange(-10,10,1001))
+abs(e(dual(e1[1])).der*e(dual(e1[2])).der)
 # ## Ejercicio 2
 #
 # Llamaremos \$c_n\$ al valor del parámetro $c$ para el mapeo cuadrático
@@ -130,7 +128,7 @@ end
 Q(x, c) = x^2 - c
 
 """
-Obtiene n + 1 valores de c para mapeos cuadráticos superestables desde c₀ hasta cₙ.
+Obtiene n + 1 valores de c para mapeos cuadráticos superestables desde c₀ hasta cₙ. Devuelve dos vectores: cs que contiene las n + 1 iteraciones superstables del mapeo cuadrático, y fs que contiene los n - 1 valores de f donde f = fₙ = (cₙ-c_{n+1})/(c_{n+1}-c_{n+2}).
 """
 function obtainNCs(nTot)
     ns = [2^n for n in 1:nTot]
@@ -138,7 +136,7 @@ function obtainNCs(nTot)
     for n in ns
         cCand = 100.0
         comp = composeQ(n)
-        currC, _ = mN(comp, n, LinRange(0, 5, 100001))
+        currC, _ = metNewt(comp, LinRange(0, 5, 100001))
         for ca in currC
             ((ca > maximum(cs)) && (abs(ca - maximum(cs)) > 1e-12)) && (cCand = min(cCand, ca))
         end
@@ -170,7 +168,7 @@ fAproximada = fs[end]
 
 """
 Aproxima el valor de α a partir de los mapeos cuadráticos que utilizan 
-los valores de c para ciclos superestables desde c₀ hasta cₙ
+los valores de c para ciclos superestables desde c₀ hasta cₙ. Regresa dos vectores: ds con todas las iteraciones obtenidas de d, y αs con todas las iteraciones obtenidas de α.
 
 """
 function approxA(n)
@@ -178,7 +176,7 @@ function approxA(n)
     ds = [0.0]
     for (i, c) in enumerate(cs)
         if i != 1
-            vals = abs.(accumulate((x, _) -> Q(x, c), 1:2^(i-1), init=0.0))
+            vals = accumulate((x, _) -> Q(x, c), 1:2^(i-1), init=0.0)
             push!(ds, minimum(filter(x -> !isapprox(x, 0.0, atol=1e-5), vals)))
         end
     end
@@ -187,4 +185,3 @@ function approxA(n)
 end
 ds, αs = approxA(8)
 αAproximada = αs[end]
-
