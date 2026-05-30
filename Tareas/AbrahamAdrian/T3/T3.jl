@@ -28,7 +28,7 @@ using .numDuales
 Regresa todas las raíces encontradas para la función f dentro del intervalo rg (de tipo LinRange). Para obtener puntos fijos de una función f, es necesario introducir una función anónima en el argumento de la forma "x -> f(x) - x". Regresa un array con los ceros/pts. fijos encontrados en el rango establecido.
 """
 function metNewt(f,rg::LinRange)
-    rs = [] # Array de ceros encontrados
+    rs = Float64[] # Array de ceros encontrados
     for p in rg
         # println("Currently at p = $p")
         try
@@ -72,6 +72,10 @@ metNewt(x -> c(c(x))-x, LinRange(-10,10,101))
 # para el mapeo \$F(x) = x^2 -1\$ son linealmente estables (atractivos).
 e(x) = x^2 -1
 e1 = metNewt(x -> e(e(x))-x, LinRange(-10,10,1001))
+# Verificamos que e1[1] y e1[2] son puntos de periodo 2:
+# Q²(e1[1]) debe ser igual a e1[1], lo que se comprueba con e(e(e1[1])) ≈ e1[1]
+e(e(e1[1])) ≈ e1[1]
+e(e(e1[2])) ≈ e1[2]
 multiplicador = abs(e(dual(e1[1])).der*e(dual(e1[2])).der)
 # El multiplicador del ciclo es |F'(x₁)·F'(x₂)|. Como multiplicador < 1,
 # el ciclo de periodo 2 es linealmente estable (atractor).
@@ -93,20 +97,20 @@ multiplicador = abs(e(dual(e1[1])).der*e(dual(e1[2])).der)
 # es decir, den una estimación de \$\delta = f_\infty\$.
 #
 
-"""
-Regresa la función compuesta resultante de componer n veces el mapeo cuadrático y establecer todos los valores de x = x₀ = 0.0.
-"""
-function composeQ(n, x_0 = 0.0)
-    return c -> begin
-            x = x_0
-            for _ in 1:n
-                x = Q(x, c)
-            end
-            x
-        end
-end
-
 Q(x, c) = x^2 - c
+
+"""
+Regresa el n-ésimo iterado del mapeo cuadrático Q_c(x) = x²-c aplicado a x₀,
+es decir, Q_c^n(x₀). El parámetro c se pasa explícitamente para que metNewt
+pueda buscar sus ceros respecto a c con el LinRange actuando sobre c.
+"""
+function composeQ(n, c, x_0 = 0.0)
+    x = x_0
+    for _ in 1:n
+        x = Q(x, c)
+    end
+    return x
+end
 
 """
 Obtiene n + 1 valores de c para mapeos cuadráticos superestables desde c₀ hasta cₙ. Devuelve dos vectores: cs que contiene las n + 1 iteraciones superstables del mapeo cuadrático, y fs que contiene los n - 2 valores de f donde f = fₙ = (cₙ-c_{n+1})/(c_{n+1}-c_{n+2}).
@@ -116,8 +120,8 @@ function obtainNCs(nTot)
     cs = [0.0]
     for n in ns
         cCand = 100.0
-        comp = composeQ(n)
-        currC = metNewt(comp, LinRange(0, 5, 100001))
+        # c solo puede estar en [0, 2] para el mapeo cuadrático acotado
+        currC = metNewt(c -> composeQ(n, c), LinRange(0, 2, 100001))
         for ca in currC
             ((ca > maximum(cs)) && (abs(ca - maximum(cs)) > 1e-12)) && (cCand = min(cCand, ca))
         end
@@ -126,7 +130,7 @@ function obtainNCs(nTot)
     fs = [(cs[n] - cs[n+1])/(cs[n+1] - cs[n+2]) for n in 1:nTot-2]
     return cs, fs
 end
-cs, fs = obtainNCs(7)
+cs, fs = obtainNCs(9)
 cs
 fAproximada = fs[end]
 # ## Ejercicio 3
