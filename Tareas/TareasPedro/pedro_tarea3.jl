@@ -34,7 +34,7 @@ function newton(f, x0::Float64; tol=1e-12, max_iter=100)
         d = f(dual(x))
         fx  = fun(d)
         f′x = der(d)
-        @assert abs(f′x) > 1e-15 "Derivada cercana a cero en x=$x"
+        @assert abs(f′x) > 1e-16 "Derivada cercana a cero en x=$x"
         x_new = x - (fx / f′x)
         abs(x_new - x) < tol && return x_new
         x = x_new
@@ -79,8 +79,8 @@ println("Puntos de periodo 2: ", p2_1, "  ", p2_2)
 # para el mapeo \$F(x) = x^2 -1\$ son linealmente estables (atractivos).
 
 #=
-La estabilidad viene de (F^2)'(q) = F'(q₊) · F'(q₋)
-(regla de la cadena, como lo muestran las notas en la ec. de Q_c²)
+La estabilidad viene de (F^2)'(q) justo cuando |(F^2)'(q)| es menor que 1. Para esto usaremos regla 
+de la cadena.
 Con duales lo calculamos directo:
 =#
 der_F2_en_p2_1 = der(F(F(dual(p2_1))))
@@ -105,6 +105,52 @@ der_F2_en_p2_2 = der(F(F(dual(p2_2))))
 # es decir, den una estimación de \$\delta = f_\infty\$.
 #
 
+#Empezaremos definiendo Q_c como:
+Qc(x,c) = x^2 - c
+
+#c_n es tal que Q_{cn}^{2^n}(0) = 0
+
+#Función que evalua Q_c^{m}(x_0)
+function itera_Qc(x_0, c, m::Int)
+    x = x_0
+    for i=1:m
+        x = x^2 - c 
+    end
+    return x
+end
+
+#=
+Ahora para calcular c_r es necesario que creemos una función que  saber cuando 
+g(c) = itera_Qc(0, c, 2^n) es cero. Para lo cual es necesario aplicar el método de newton a
+g(c) para algún punto c_0. 
+=#
+function encontrar_cn(n::Int, c0::Float64)
+    periodo = 2^n
+    g(c) = itera_Qc(0, c, periodo)
+    return newton(g, c0)
+end
+
+#Definimos un vector donde vamos a colocar las c_r de 0 a 7:
+cr = Vector{Float64}(undef, 8)
+# Notemos que el de periodo uno es 0^2 + c_0 = 0, entonces c_0 = 0
+
+#tanteandole para encontrar unos cr que hagan que f_r parezca que converga
+cr[1] = 0.0
+cr[2] = encontrar_cn(1, 0.8)
+cr[3] = encontrar_cn(2, 1.2)
+cr[4] = encontrar_cn(3, 1.37)
+cr[5] = encontrar_cn(4, 1.40)
+cr[6] = encontrar_cn(5, 1.4006)
+cr[7] = encontrar_cn(6, 1.4008)
+cr[8] = encontrar_cn(7, 1.4011)
+
+println("Secuencia f_n:")
+for n in 1:(length(cr)-2)
+    fn = (cr[n] - cr[n+1]) / (cr[n+1] - cr[n+2])
+    println("f_$(n-1) = $fn")
+end
+
+#Parece que cuando r tiende a infinito tiende a 4.66 y más decimales
 # ## Ejercicio 3
 #
 # (Este ejercicio requiere el cálculo de las $c_n$ del ejercicio anterior.)
@@ -121,3 +167,42 @@ der_F2_en_p2_2 = der(F(F(dual(p2_2))))
 # ```
 # en el límite de \$n\$ muy grande.
 #
+#=
+Para el ciclo superestable de periodo 2^n con parámetro c_n,
+los puntos del ciclo son: 0, Q_cn(0), Q_cn²(0), ..., Q_cn^{2^n - 1}(0)
+Queremos el punto distinto de 0 con menor |x|, esa distancia es d_n.
+=#
+
+function calcular_dn(cr::Vector{Float64},n::Int)
+    cn = cr[n+1]
+    periodo = 2^n
+    # Generamos todos los puntos del ciclo partiendo de 0
+    puntos = Vector{Float64}(undef, periodo)
+    x = 0.0
+    for i in 1:periodo
+        x = x^2 - cn
+        puntos[i] = x
+    end
+    # Quitamos los que sean exactamente 0 (o muy cercanos)
+    filter!(p -> abs(p) > 1e-10, puntos)
+    # Regresamos la distancia mínima al origen
+    return minimum(abs, puntos)
+end
+
+# Calculamos d_n para n = 1 a 7 (necesitamos c_1 a c_7, o sea cr[2:8])
+ds = [calcular_dn(cr, n) for n in 1:7]
+
+println("Distancias d_n:")
+for (n, d) in enumerate(ds)
+    println("d_$n = $d")
+end
+
+# Estimamos α = -d_n / d_{n+1}
+println("\nSecuencia α_n = -d_n / d_{n+1}:")
+for n in 1:(length(ds)-1)
+    αn = -ds[n] / ds[n+1]
+    println("α_$n = $αn")
+end
+
+α_estimado = -ds[end-1] / ds[end]
+#El que mejor se aproxima a la convergencia es  α_6 ≈ α_∞ ≈ -2.50287
