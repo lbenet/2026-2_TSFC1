@@ -86,13 +86,14 @@ end
 # ============================================================
 
 """
-    newton_orbita(p₀, θ₀, ε, q; tol=1e-12, maxiter=50) -> (Vector, Bool)
+    newton_orbita(p₀, θ₀, ε, q; tol=1e-12, maxiter=50) -> Vector
 
 Método de Newton 2D para encontrar una órbita periódica de periodo `q`
 del mapeo estándar con parámetro `ε`, partiendo de la semilla `(p₀, θ₀)`.
 
 El Jacobiano se calcula en cada iteración por diferenciación automática.
-Devuelve el punto `[p, θ]` encontrado y un booleano indicando convergencia.
+Devuelve el punto `[p, θ]` encontrado. La verificación de convergencia
+se realiza en `buscar_orbitas` comprobando que ‖F^q(x) − x‖ < tol.
 """
 function newton_orbita(p0, θ0, ε, q; tol=1e-12, maxiter=50)
     x = [p0, θ0]
@@ -100,13 +101,12 @@ function newton_orbita(p0, θ0, ε, q; tol=1e-12, maxiter=50)
         Fq, J  = jacobiano_q(x[1], x[2], ε, q)
         G  = Fq - x        # F^q(x) - x
         DG = J - I         # DF^q - I
-        norm(G) < tol && return x, true
+        norm(G) < tol && return x
         x  = x - DG \ G   # paso de Newton
         x[2] = mod(x[2], 2π)
         x[1] = mod(x[1] + π, 2π) - π
     end
-    Fq, _ = jacobiano_q(x[1], x[2], ε, q)
-    return x, norm(Fq - x) < tol
+    return x
 end
 
 """
@@ -122,8 +122,9 @@ function buscar_orbitas(ε, q; n_seeds=60, tol=1e-10)
     for _ in 1:n_seeds
         θ0 = 2π * rand()
         p0 = 2π * rand() - π
-        x, conv = newton_orbita(p0, θ0, ε, q; tol=1e-12)
-        if conv
+        x = newton_orbita(p0, θ0, ε, q; tol=1e-12)
+        Fq, _ = jacobiano_q(x[1], x[2], ε, q)
+        if norm(Fq - x) < tol
             es_nuevo = all(norm(x - o) > tol for o in orbitas)
             es_nuevo && push!(orbitas, copy(x))
         end
