@@ -1,4 +1,5 @@
 # # Tarea 3: Exponentes de Feigenbaum
+# Por Meneses Orozco Pedro Damian
 
 # ## Ejercicio 1
 #
@@ -78,6 +79,19 @@ println("Puntos de periodo 2: ", p2_1, "  ", p2_2)
 # (e) Usen los números duales para mostrar que los puntos de periodo 2
 # para el mapeo \$F(x) = x^2 -1\$ son linealmente estables (atractivos).
 
+#Definimos F1(x) = x^2 - 1 y FF1(x) = F1(F1(x)) 
+F1(x) = x^2 - 1
+FF1(x) = F1(F1(x))
+#Veamos cuales son los puntos fijos de F1:
+p1f1 = newton(x -> F1(x) - x,  2.0)
+p1f2 = newton(x -> F1(x) - x, 0.0)
+println("Puntos fijos: ", p1f1, "  ", p1f2)
+
+#Ahora los de periodo 2:
+
+p2_1 = newton(x -> FF1(x) - x,  1.0)
+p2_2 = newton(x -> FF1(x) - x, 0.0)
+
 #=
 La estabilidad viene de (F^2)'(q) justo cuando |(F^2)'(q)| es menor que 1. Para esto usaremos regla 
 de la cadena.
@@ -85,6 +99,7 @@ Con duales lo calculamos directo:
 =#
 der_F2_en_p2_1 = der(F(F(dual(p2_1))))
 der_F2_en_p2_2 = der(F(F(dual(p2_2))))
+#Notamos que -1 es estable y 0.0 es superestable
 
 
 # ## Ejercicio 2
@@ -114,7 +129,7 @@ Qc(x,c) = x^2 - c
 function itera_Qc(x_0, c, m::Int)
     x = x_0
     for i=1:m
-        x = x^2 - c 
+        x = Qc(x,c)
     end
     return x
 end
@@ -124,33 +139,45 @@ Ahora para calcular c_r es necesario que creemos una función que  saber cuando
 g(c) = itera_Qc(0, c, 2^n) es cero. Para lo cual es necesario aplicar el método de newton a
 g(c) para algún punto c_0. 
 =#
-function encontrar_cn(n::Int, c0::Float64)
+function encontrar_cn(n::Int, c0::Float64;  max_ite=100)
     periodo = 2^n
     g(c) = itera_Qc(0, c, periodo)
-    return newton(g, c0)
+    return newton(g, c0, max_iter = max_ite)
 end
 
-#Definimos un vector donde vamos a colocar las c_r de 0 a 7:
-cr = Vector{Float64}(undef, 8)
+#Definimos un vector donde vamos a colocar las c_r de 0 a 15:
+cr = Vector{Float64}(undef, 16)
 # Notemos que el de periodo uno es 0^2 + c_0 = 0, entonces c_0 = 0
 
 #tanteandole para encontrar unos cr que hagan que f_r parezca que converga
 cr[1] = 0.0
 cr[2] = encontrar_cn(1, 0.8)
-cr[3] = encontrar_cn(2, 1.2)
-cr[4] = encontrar_cn(3, 1.37)
-cr[5] = encontrar_cn(4, 1.40)
-cr[6] = encontrar_cn(5, 1.4006)
-cr[7] = encontrar_cn(6, 1.4008)
-cr[8] = encontrar_cn(7, 1.4011)
+#A partir de aquí utilicé como semilla el anterior e hice una pequeña variación a cada paso
+for i in 3:16
+    #c_i > c_{i-1}, usamos c_{i-1} + fracción de la diferencia anterior
+    paso = cr[i-1] - cr[i-2]
+    if i <= 8
+        cr[i] = encontrar_cn(i-1, cr[i-1] + paso/(i-1), max_ite = 100)
+    else 
+        cr[i] = encontrar_cn(i-1, cr[i-1] + paso/7, max_ite = 100) #Me di cuenta que cuando i pasaba de 8 el metodo de newton dejaba de converger
+    end
+end
 
+for n in 1:(length(cr))
+    cr_n = cr[n]
+    println("c_$(n-1) = $cr_n")
+end
+
+f_n = Float64[]
 println("Secuencia f_n:")
 for n in 1:(length(cr)-2)
     fn = (cr[n] - cr[n+1]) / (cr[n+1] - cr[n+2])
+    push!(f_n, fn)
     println("f_$(n-1) = $fn")
 end
 
-#Parece que cuando r tiende a infinito tiende a 4.66 y más decimales
+δ = f_n[end]
+println("Parece que cuando r tiende a infinito tiende a $δ")
 # ## Ejercicio 3
 #
 # (Este ejercicio requiere el cálculo de las $c_n$ del ejercicio anterior.)
@@ -174,23 +201,17 @@ Queremos el punto distinto de 0 con menor |x|, esa distancia es d_n.
 =#
 
 function calcular_dn(cr::Vector{Float64},n::Int)
+    #Iteramos 2^(n-1) pasos desde x=0 (mitad del periodo)
     cn = cr[n+1]
-    periodo = 2^n
-    # Generamos todos los puntos del ciclo partiendo de 0
-    puntos = Vector{Float64}(undef, periodo)
     x = 0.0
-    for i in 1:periodo
-        x = x^2 - cn
-        puntos[i] = x
+    for i in 1:2^(n-1)
+        x = Qc(x, cn)
     end
-    # Quitamos los que sean exactamente 0 (o muy cercanos)
-    filter!(p -> abs(p) > 1e-10, puntos)
-    # Regresamos la distancia mínima al origen
-    return minimum(abs, puntos)
+    return abs(x)
 end
 
-# Calculamos d_n para n = 1 a 7 (necesitamos c_1 a c_7, o sea cr[2:8])
-ds = [calcular_dn(cr, n) for n in 1:7]
+# Calculamos d_n para n = 1 a 15 (necesitamos c_1 a c_15, o sea cr[2:16])
+ds = [calcular_dn(cr, n) for n in 1:15]
 
 println("Distancias d_n:")
 for (n, d) in enumerate(ds)
@@ -205,4 +226,4 @@ for n in 1:(length(ds)-1)
 end
 
 α_estimado = -ds[end-1] / ds[end]
-#El que mejor se aproxima a la convergencia es  α_6 ≈ α_∞ ≈ -2.50287
+#El que mejor se aproxima a la convergencia es  α_6 ≈ α_∞ ≈ -2.5029
