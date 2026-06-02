@@ -43,9 +43,6 @@ end
 f(x) = x^3-15.625
 cerosNewton(f,2)
 
-f(x) = x^3-15.625
-cerosNewton(f,2)
-
 # (c) Encuentren *todos* los puntos fijos del mapeo \$F(x) = x^2 - 1.1\$
 # usando la función que implementaron para el método de Newton.
 #
@@ -57,16 +54,33 @@ G(x) = x^2 - x - 1.1 # Debemos encontrar los ceros cuando F(x) = x => G(x) = F(x
 cerosNewton(G,1)
 cerosNewton(G,-1)
 
-
 # (d) Encuentren los puntos *de periodo 2* para el mapeo \$F(x) = x^2 - 1.1\$
 # usando la función que implementaron para el método de Newton.
-#
 
-#H(x) = x^4 - 2.2x^2 -x + 0.11
+H(x) = x^4 - 2.2x^2 -x + 0.11
 
-#cerosNewton(H,-1)
-#cerosNewton(H,25)
-#cerosNewton(H,40)
+function CerosFun(f,a,b) 
+    """
+    Obtiene todos los ceros de una función implementando un barrido en el dominio [a,b].
+    Primero obtiene f(x) en todo el dominio, luego se obtienen aquellos puntos en los que hay un cambio de signo. 
+    Se aplica Newton sobre la semisuma de los puntos en los que se encuentra el cambio de signo. 
+    """
+    x0Aprox = []
+    x0 = []
+    x = range(a,b,length=1000)
+    y = f.(x)
+    for i in 1:length(y)-1
+        if y[i]*y[i+1]<0
+            push!(x0Aprox,[x[i],x[i+1]])
+        end
+    end
+    for i in 1:length(x0Aprox)
+        push!(x0,cerosNewton(f,(x0Aprox[i][1]+x0Aprox[i][2])*0.5))
+    end
+    return x0
+end
+
+CerosFun(H,-3,3)
 
 # (e) Usen los números duales para mostrar que los puntos de periodo 2
 # para el mapeo \$F(x) = x^2 -1\$ son linealmente estables (atractivos).
