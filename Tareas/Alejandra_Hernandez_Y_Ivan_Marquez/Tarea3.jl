@@ -25,18 +25,26 @@ using .NumDual
 # \$f(x) = x^3 - 15.625\$, para verificar que su implementación funciona.
 #
 
-function cerosNewton(f,a) # Obtiene un solo cero de la función dada, estableciendo una variable inicial para buscar nuestro cero
-    for i = 0:10 # Iteramos unicamente 10 veces, pero podemos aumentar este número para tener más precisión
+function cerosNewton(f,a) 
+    """
+    Obtiene un solo cero de la función dada, estableciendo una variable inicial (a), para buscar nuestro cero.
+    Se detiene el procedimiento cuando el error relativo es menor a 1e-6
+    """
+    error=1e-6
+    dif = 1
+    while dif>error  
+        b = a
         a = a - (fun(f(dual(a))))/(der(f(dual(a))))
+        dif = abs(b-a)
     end
-
     return a
-
 end
 
 f(x) = x^3-15.625
-cerosNewton(f)
-f(cerosNewton(f))
+cerosNewton(f,2)
+
+f(x) = x^3-15.625
+cerosNewton(f,2)
 
 # (c) Encuentren *todos* los puntos fijos del mapeo \$F(x) = x^2 - 1.1\$
 # usando la función que implementaron para el método de Newton.
