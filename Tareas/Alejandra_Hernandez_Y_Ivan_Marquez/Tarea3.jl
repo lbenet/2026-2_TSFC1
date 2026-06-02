@@ -85,6 +85,24 @@ CerosFun(H,-3,3)
 # (e) Usen los números duales para mostrar que los puntos de periodo 2
 # para el mapeo \$F(x) = x^2 -1\$ son linealmente estables (atractivos).
 
+P(x) = x^4 - 2*x^2   #la defino como P(x)
+
+# Definiendo Q(x)= P(x)-x
+Q(x)= x^4 - 2*x^2 - x
+
+#Obteniendo los ceros de este polinomio 
+C = CerosFun(Q, -10,10)
+
+derivs = []
+#Obteniendo la derivada en cada punto 
+for i in 1:length(C)
+    y = dual(C[i])
+    push!(derivs, der(P(y)))    
+end
+
+derQ = derivs[1]*derivs[2]*derivs[3]*derivs[4] 
+#como derQ está entre -1 y 1, concluímos que todos los puntos fijos de Q son atractores.
+
 
 # ## Ejercicio 2
 #
