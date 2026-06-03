@@ -86,10 +86,7 @@ CerosFun(H,-3,3)
 # para el mapeo \$F(x) = x^2 -1\$ son linealmente estables (atractivos).
 F(x) = x^2 -1
 
-P(x) = x^4 - 2*x^2   #la defino como P(x)
-
-# Definiendo Q(x)= P(x)-x
-Q(x)= x^4 - 2*x^2 - x
+Q(x)= F(F(x))-x
 
 #Obteniendo los ceros de este polinomio 
 C = CerosFun(Q, -10,10)
