@@ -127,6 +127,19 @@ derQ = derivs[1]*derivs[2]*derivs[3]*derivs[4]
 # De lo anterior, lo que hice fue conjeturar que puedo tomar a la cuadratica, y las F(x) compuestas para encontrar las ecuaciones
 # que le daré al algoritmo de Newton para encontrar las orbitas superestables. 
 
+# Para n=1 H1(0) = F(0) = -c1 = 0, entonces c1 = 0  
+# Para n=2 H2(0) = F(F(0)) = c2(c2-1) = 0, entonces c2 = 1 y c2 = 0. Podemos notar a continuación que es con 1 que se tiene una
+# órbita de periodo 2.  
+
+Fc2(x) = x^2 -1
+Fc2(0)
+Fc2(-1)
+
+#Por lo tanto c2=1
+# Para n=3, al hacer las cuentas, se puede ver que H3(0) = F(F(F(0))) = g(c3(c3-1))-c3 con g(x) = x^2.
+# De lo anterior, lo que hice fue conjeturar que puedo tomar a la cuadratica, y las H_n(x) compuestas para encontrar las ecuaciones
+# que le daré al algoritmo de Newton para encontrar las orbitas superestables. 
+
 function Comp(f,n)
     """
     Esta función compone n veces la función f. Para n=0, devuelve la identidad. Para n=1 devuelve f.
@@ -141,9 +154,10 @@ function Comp(f,n)
     return g
 end
 
-function Cn(n)
+function PolinC(n)
     """
-    Compone n veces x^2 y en cada composición le añade una - x. (x juega el rol de c)
+    Compone n veces x^2 y en cada composición le añade una - x. (x juega el rol de c).
+    Esta función crea los poliniomios con los cuales vamos a obtener las C, usando el CerosFun. 
     """
     if n == 1
         Cn = identity
@@ -159,34 +173,38 @@ function Cn(n)
 end  
 
 # Para probar la función, usaré n=1
-v =Cn(1)
-CerosFun(v,-10,10)
+PoliC1 = PolinC(1)
+print(CerosFun(PoliC1,-10,10))
 
-#El resultado nos dice que para c1 = 0, en la orbita de Q1(x) = x^2, cero es punto fijo. Veamos si esto es cierto. 
+#Esto nos dice lo que ya sabíamos sobre C1
 
-Q1(x) = x^2   
-F1(x) = Q1(x) - x
-CerosFun(F1,-10,10)
-
-#Tenemos como puntos fijos para Q1, a cero y a 1, que era lo que buscabamos. 
-
-#Ahora voy a rectificar el resultado que ya se encontró anteriormente para n=2
-v =Cn(2)
-CerosFun(v,-10,10)
+#Ahora voy a rectificar el resultado que ya se encontró anteriormente para n=1
+Polic2 =PolinC(2)
+print(CerosFun(Polic2,-10,10))
 
 #Ahora obtenemos que C2=1 y C2=0, lo cual ya habíamos obtenido anteriormente de manera analítica. Y como se realizó en el ejercicio anterior
-# para C2 = 1 se tiene a cero como punto fijo. 
+# para C2 = 1 se tiene la orbita de periodo 2.
 
-#Rectificaré, por último, para n=5
-v =Cn(5)
-CerosFun(v,-10,10)
+#Rectificaré, por último, para n=2, es decir, para Q^4
+Polic4 =PolinC(4)
+ceros = CerosFun(Polic4,-10,10)
 
-# Tomaré C5 = 1.8607825222048548
+#Ahora veamos para qué C se tiene una órbita de periodo 4 en x0 = 0.
+Q4(x) = x^2 - 1.3107026413398222  #descarto C2 = 0 ya que esa es una orbita de periodo 1; y descarto C2=1 porque esa es de periodo 2.
+print(Comp(Q4,4)(0))
 
-Q5(x) = x^2 - 1.8607825222048548    
-Fcinco = Comp(Q5,5)
-CerosFun(x -> Fcinco(x) - x ,-10,10)
+#Notemos que el resultado es prácticamente cero. Y se cumple que para C2 = 1.3107026413398222 se tiene una órbita de periodo 4 en x0 = 0
 
+function Cns(n)
+    """
+    Esta función obtiene ceros de los polinomios P(c), que genera la función Cn(n). 
+    Regresa el vector cs, donde cs[1] contiene c1 = 0 y c1=0, cs[2] contiene a c2 = 0.0, 1.0, 1.3107026413398222, 1.9407998065294847
+    """
+    cs = CerosFun(PolinC(2^n),0,2)
+    return cs
+end
+
+#FUNCIONA, PERO FALTA OPTIMIZARLO PORQUE NO PASA DE N=4 ...
 
 # ## Ejercicio 3
 #
